@@ -140,7 +140,24 @@
     <Resource Include="Images\progress.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include=".gitignore" />
     <Content Include="Db\CreateDb.sql" />
+    <Resource Include="Images\Quest2\alone.jpeg" />
+    <Resource Include="Images\Quest2\family.jpeg" />
+    <Resource Include="Images\Quest2\friends.jpeg" />
+    <Resource Include="Images\Quest1\beach.jpeg" />
+    <Resource Include="Images\Quest1\culture.jpeg" />
+    <Resource Include="Images\Quest1\hiking.jpeg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Images\Quest10\" />
+    <Folder Include="Images\Quest4\" />
+    <Folder Include="Images\Quest5\" />
+    <Folder Include="Images\Quest6\" />
+    <Folder Include="Images\Quest7\" />
+    <Folder Include="Images\Quest8\" />
+    <Folder Include="Images\Quest9\" />
+    <Folder Include="Views\Pages\Questions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MaterialDesignThemes.5.2.1\build\MaterialDesignThemes.targets" Condition="Exists('..\packages\MaterialDesignThemes.5.2.1\build\MaterialDesignThemes.targets')" />
