@@ -68,6 +68,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\Pages\AdminPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\Pages\Login.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -75,6 +79,10 @@
     <Page Include="Views\Pages\RegisterPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\SurveyPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Windows\LoginWindow.xaml">
       <SubType>Designer</SubType>
@@ -93,11 +101,17 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Db\Dbhelper.cs" />
+    <Compile Include="Models\User.cs" />
+    <Compile Include="Services\AuthService.cs" />
+    <Compile Include="Views\Pages\AdminPage.xaml.cs" />
     <Compile Include="Views\Pages\Login.xaml.cs">
       <DependentUpon>Login.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\RegisterPage.xaml.cs">
       <DependentUpon>RegisterPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\SurveyPage.xaml.cs">
+      <DependentUpon>SurveyPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
@@ -142,21 +156,26 @@
   <ItemGroup>
     <Content Include=".gitignore" />
     <Content Include="Db\CreateDb.sql" />
-    <Resource Include="Images\Quest2\alone.jpeg" />
-    <Resource Include="Images\Quest2\family.jpeg" />
-    <Resource Include="Images\Quest2\friends.jpeg" />
-    <Resource Include="Images\Quest1\beach.jpeg" />
-    <Resource Include="Images\Quest1\culture.jpeg" />
-    <Resource Include="Images\Quest1\hiking.jpeg" />
+    <Resource Include="Images\Question2\1.jpeg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Question2\2.jpeg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Question2\3.jpeg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Question1\1.jpeg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Question1\2.jpeg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Images\Question1\3.jpeg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Images\Quest10\" />
-    <Folder Include="Images\Quest4\" />
-    <Folder Include="Images\Quest5\" />
-    <Folder Include="Images\Quest6\" />
-    <Folder Include="Images\Quest7\" />
-    <Folder Include="Images\Quest8\" />
-    <Folder Include="Images\Quest9\" />
     <Folder Include="Views\Pages\Questions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

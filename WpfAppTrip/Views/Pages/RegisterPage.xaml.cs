@@ -2,6 +2,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Threading.Tasks;
+using WpfAppTrip.Services;
+using System;
 
 namespace WpfAppTrip.Views.Pages
 {
@@ -12,9 +14,12 @@ namespace WpfAppTrip.Views.Pages
     {
         private readonly Regex _phoneRegex = new Regex(@"^\+7\d{10}$");
         private readonly Regex _emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        private readonly AuthService _authService;
+
         public RegisterPage()
         {
             InitializeComponent();
+            _authService = new AuthService();
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
@@ -33,32 +38,49 @@ namespace WpfAppTrip.Views.Pages
             RegisterButton.IsEnabled = false;
             try
             {
-                bool success = true;
+                string username = PhoneTextBox.Text; // Используем телефон как имя пользователя
+                string email = EmailTextBox.Text;
+                string password = PasswordBox.Password;
+
+                if (password != ConfirmPasswordBox.Password)
+                {
+                    MessageBox.Show("Пароли не совпадают", 
+                                  "Ошибка", 
+                                  MessageBoxButton.OK, 
+                                  MessageBoxImage.Warning);
+                    return;
+                }
+
+                var (success, error) = await _authService.RegisterAsync(username, email, password);
 
                 if (success)
                 {
-                    MessageBox.Show("Регистрация успешна!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Регистрация успешна!", 
+                                  "Успех", 
+                                  MessageBoxButton.OK, 
+                                  MessageBoxImage.Information);
+                    
                     if (NavigationService?.CanGoBack == true)
                         NavigationService.GoBack();
                 }
                 else
                 {
-                    MessageBox.Show("Пользователь с таким телефоном или email уже существует.",
+                    MessageBox.Show(error,
                                   "Ошибка регистрации",
                                   MessageBoxButton.OK,
                                   MessageBoxImage.Warning);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Произошла ошибка при регистрации. Пожалуйста, попробуйте позже.",
+                MessageBox.Show($"Произошла ошибка при регистрации: {ex.Message}",
                               "Ошибка",
                               MessageBoxButton.OK,
                               MessageBoxImage.Error);
             }
             finally
             {
-                ValidateFields(sender, new RoutedEventArgs());
+                RegisterButton.IsEnabled = true;
             }
         }
 

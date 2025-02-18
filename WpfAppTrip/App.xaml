@@ -17,7 +17,7 @@
 
             <!-- Material Design Settings -->
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-            <system:String x:Key="ConnectionString">Server=(localdb)\MSSQLLocalDB;Database=TripDB;Trusted_Connection=True;</system:String>
+            <system:String x:Key="ConnectionString">Server=(localdb)\MSSQLLocalDB;Database=TourSurveyDB;Trusted_Connection=True;</system:String>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
