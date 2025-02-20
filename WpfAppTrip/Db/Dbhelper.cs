@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Configuration;
 using System.Windows;
+using System.Diagnostics;
 
 namespace WpfAppTrip.Db
 {
@@ -20,23 +21,37 @@ namespace WpfAppTrip.Db
         /// <summary>
         /// Выполняет SQL запрос без возврата данных
         /// </summary>
-        public async Task ExecuteNonQueryAsync(string query, Dictionary<string, object> parameters = null)
+        public async Task<int> ExecuteNonQueryAsync(string query, Dictionary<string, object> parameters = null)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            try
             {
-                using (var command = new SqlCommand(query, connection))
+                using (var connection = new SqlConnection(_connectionString))
                 {
-                    if (parameters != null)
-                    {
-                        foreach (var param in parameters)
-                        {
-                            command.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
-                        }
-                    }
-
                     await connection.OpenAsync();
-                    await command.ExecuteNonQueryAsync();
+                    using (var command = new SqlCommand(query, connection))
+                    {
+                        if (parameters != null)
+                        {
+                            foreach (var param in parameters)
+                            {
+                                command.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
+                            }
+                        }
+                        
+                        Debug.WriteLine($"Executing query: {query}");
+                        foreach (var param in parameters ?? new Dictionary<string, object>())
+                        {
+                            Debug.WriteLine($"Parameter {param.Key}: {param.Value}");
+                        }
+                        
+                        return await command.ExecuteNonQueryAsync();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Database error: {ex.Message}");
+                throw;
             }
         }
 

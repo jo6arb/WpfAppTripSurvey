@@ -16,10 +16,49 @@
     </Window.Resources>
 
     <Grid>
-        <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <!-- Начальная страница -->
-        <Grid x:Name="WelcomePage">
+        <!-- Верхнее меню -->
+        <materialDesign:ColorZone Mode="PrimaryMid" 
+                                 Padding="16"
+                                 Visibility="{Binding IsUserLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal"
+                            DockPanel.Dock="Right">
+                    <TextBlock Text="{Binding CurrentUserName}"
+                              VerticalAlignment="Center"
+                              Margin="0,0,16,0"/>
+                    <Button Style="{StaticResource MaterialDesignFlatButton}"
+                            Command="{Binding LogoutCommand}"
+                            Content="Выйти"/>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{StaticResource MaterialDesignFlatButton}"
+                            Command="{Binding NavigateToSurveyCommand}"
+                            Content="Опрос"/>
+                    
+                    <!-- Кнопка администратора -->
+                    <Button Style="{StaticResource MaterialDesignFlatButton}"
+                            Command="{Binding NavigateToAdminCommand}"
+                            Content="Управление пользователями"
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                </StackPanel>
+            </DockPanel>
+        </materialDesign:ColorZone>
+
+        <!-- Основной контент -->
+        <Frame Grid.Row="1" 
+               x:Name="MainFrame" 
+               NavigationUIVisibility="Hidden"/>
+        
+        <!-- Приветственная страница -->
+        <Grid Grid.Row="1" 
+              x:Name="WelcomePage"
+              Visibility="{Binding IsWelcomePageVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>

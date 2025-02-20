@@ -1,0 +1,64 @@
+<Page x:Class="WpfAppTrip.Views.Pages.AdminPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      mc:Ignorable="d" 
+      d:DesignHeight="700" d:DesignWidth="1000"
+      Title="Управление пользователями">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Text="Управление пользователями"
+                   Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                   Margin="0,0,0,20"/>
+
+        <!-- Таблица пользователей -->
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Users}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  IsReadOnly="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" 
+                                  Binding="{Binding UserID}"
+                                  IsReadOnly="True"/>
+                <DataGridTextColumn Header="Имя пользователя" 
+                                  Binding="{Binding Username}"/>
+                <DataGridTextColumn Header="Email" 
+                                  Binding="{Binding Email}"/>
+                <DataGridTextColumn Header="Роль" 
+                                  Binding="{Binding Role}"/>
+                <DataGridTextColumn Header="Дата регистрации" 
+                                  Binding="{Binding RegistrationDate}"
+                                  IsReadOnly="True"/>
+                
+                <!-- Кнопки действий -->
+                <DataGridTemplateColumn Header="Действия">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                        Command="{Binding DataContext.SaveUserCommand, 
+                                                  RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}"
+                                        Content="Сохранить"/>
+                                <Button Style="{StaticResource MaterialDesignFlatButton}"
+                                        Command="{Binding DataContext.DeleteUserCommand, 
+                                                  RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}"
+                                        Content="Удалить"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Page> 

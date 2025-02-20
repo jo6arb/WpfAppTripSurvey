@@ -88,6 +88,7 @@
                 FontSize="16"
                 Background="White"
                 IsEnabled="False"
+                Click="RegisterButton_Click"
                 Foreground="{StaticResource ButtonTextBrush}"
                 BorderThickness="0"
                 materialDesign:ElevationAssist.Elevation="Dp1"
