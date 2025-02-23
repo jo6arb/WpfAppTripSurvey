@@ -1,5 +1,0 @@
-<ItemGroup>
-    <Resource Include="Images\Answers\**\*.*">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-</ItemGroup> 
