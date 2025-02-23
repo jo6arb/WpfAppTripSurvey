@@ -5,12 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfAppTrip.Views.Windows"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:vm="clr-namespace:WpfAppTrip.ViewModels"
         mc:Ignorable="d"
         Title="МаршрутМастер" 
         Height="700" 
         Width="1000"
         WindowStartupLocation="CenterScreen"
-        Background="#E3F2FD">
+        Background="#E3F2FD"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel}">
     <Window.Resources>
         <SolidColorBrush x:Key="ButtonTextBrush" Color="#2196F3"/>
     </Window.Resources>
@@ -126,7 +128,7 @@
                         BorderThickness="0"
                         materialDesign:ElevationAssist.Elevation="Dp1"
                         materialDesign:ButtonAssist.CornerRadius="10"
-                        Click="StartSurveyButton_Click">
+                        Command="{Binding NavigateToSurveyCommand}">
                     <Button.Effect>
                         <DropShadowEffect BlurRadius="10" 
                                         ShadowDepth="1" 

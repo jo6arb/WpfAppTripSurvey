@@ -4,6 +4,8 @@ using System.Windows.Controls;
 using System.Threading.Tasks;
 using WpfAppTrip.Services;
 using System;
+using WpfAppTrip.ViewModels;
+using Unity;
 
 namespace WpfAppTrip.Views.Pages
 {
@@ -20,6 +22,7 @@ namespace WpfAppTrip.Views.Pages
         {
             InitializeComponent();
             _authService = new AuthService();
+            DataContext = App.Container.Resolve<RegisterViewModel>();
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
@@ -29,8 +32,18 @@ namespace WpfAppTrip.Views.Pages
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            if (NavigationService?.CanGoBack == true)
-                NavigationService.GoBack();
+            // Получаем Frame из окна
+            var frame = Window.GetWindow(this)?.FindName("MainFrame") as Frame;
+            if (frame != null)
+            {
+                // Очищаем историю навигации
+                while (frame.CanGoBack)
+                {
+                    frame.RemoveBackEntry();
+                }
+                // Очищаем текущую страницу, чтобы показать стартовый контент
+                frame.Content = null;
+            }
         }
 
         private async void RegisterButton_Click(object sender, RoutedEventArgs e)

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
+using Unity;
+using WpfAppTrip.Services;
+using WpfAppTrip.ViewModels;
+using WpfAppTrip.Views.Windows;
 
 namespace WpfAppTrip
 {
@@ -13,5 +11,41 @@ namespace WpfAppTrip
     /// </summary>
     public partial class App : Application
     {
+        private static IUnityContainer _container;
+
+        public App()
+        {
+            _container = ConfigureContainer();
+        }
+
+        // Сделаем свойство публичным и статическим
+        public static IUnityContainer Container { get; private set; }
+
+        private static IUnityContainer ConfigureContainer()
+        {
+            var container = new UnityContainer();
+
+            // Регистрация сервисов
+            container.RegisterSingleton<IDialogService, DialogService>();
+            container.RegisterSingleton<AuthService>();
+            container.RegisterSingleton<INavigationService, NavigationService>();
+
+            // Регистрация ViewModels
+            container.RegisterType<LoginViewModel>();
+            container.RegisterType<RegisterViewModel>();
+            container.RegisterType<MainViewModel>();
+            container.RegisterType<SurveyViewModel>();
+
+            // Сохраняем контейнер в статическом свойстве
+            Container = container;
+            return container;
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            var loginWindow = LoginWindow.Instance;
+            loginWindow.Show();
+        }
     }
 }

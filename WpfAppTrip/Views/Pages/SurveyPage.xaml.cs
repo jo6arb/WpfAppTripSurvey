@@ -6,6 +6,8 @@ using System.Windows.Controls;
 using System.Data;
 using WpfAppTrip.Db;
 using System.Threading.Tasks;
+using WpfAppTrip.ViewModels;
+using Unity;
 
 namespace WpfAppTrip.Views.Pages
 {
@@ -23,7 +25,7 @@ namespace WpfAppTrip.Views.Pages
             InitializeComponent();
             _db = new Dbhelper();
             LoadQuestionsAsync();
-            DataContext = this;
+            DataContext = App.Container.Resolve<SurveyViewModel>();
         }
 
         public string CurrentQuestionText => $"Вопрос {_currentQuestionIndex + 1} из {_questions?.Count ?? 0}";

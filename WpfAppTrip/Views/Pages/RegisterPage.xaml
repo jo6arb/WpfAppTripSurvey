@@ -3,8 +3,9 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:WpfAppTrip.Views.Pages"
+      xmlns:vm="clr-namespace:WpfAppTrip.ViewModels"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      d:DataContext="{d:DesignInstance Type=vm:RegisterViewModel}"
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="400"
       Title="Регистрация"
@@ -18,16 +19,14 @@
         </Grid.RowDefinitions>
 
         <!-- Кнопка "Назад" -->
-        <Button Grid.Row="0"
-            HorizontalAlignment="Left"
-            Style="{StaticResource MaterialDesignFlatButton}"
-            Foreground="{StaticResource ButtonTextBrush}"
-            Click="BackButton_Click"
-            Margin="20,20,0,0">
+        <Button Style="{StaticResource MaterialDesignFlatButton}"
+                Command="{Binding BackCommand}"
+                HorizontalAlignment="Left"
+                Margin="0,0,0,20">
             <StackPanel Orientation="Horizontal">
                 <materialDesign:PackIcon Kind="ArrowLeft" 
-                                   Width="24" 
-                                   Height="24"/>
+                                   Height="24" 
+                                   Width="24"/>
                 <TextBlock Text="Назад"
                       Margin="8,0,0,0"
                       VerticalAlignment="Center"/>
@@ -49,7 +48,7 @@
                  materialDesign:HintAssist.Hint="Телефон"
                  Style="{StaticResource MaterialDesignOutlinedTextBox}"
                  Height="56"
-                 Text="+7"
+                 Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
                  FontSize="16"
                  TextChanged="ValidateFields"
                  Foreground="{StaticResource ButtonTextBrush}"
@@ -59,6 +58,7 @@
                  materialDesign:HintAssist.Hint="Ваш e-mail"
                  Style="{StaticResource MaterialDesignOutlinedTextBox}"
                  Height="56"
+                 Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
                  FontSize="16"
                  TextChanged="ValidateFields"
                  Foreground="{StaticResource ButtonTextBrush}"
@@ -68,6 +68,7 @@
                     materialDesign:HintAssist.Hint="Пароль"
                     Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
                     Height="56"
+                    materialDesign:PasswordBoxAssist.Password="{Binding Password, Mode=TwoWay}"
                     FontSize="16"
                     PasswordChanged="ValidateFields"
                     Foreground="{StaticResource ButtonTextBrush}"
@@ -77,29 +78,23 @@
                     materialDesign:HintAssist.Hint="Повторите пароль"
                     Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
                     Height="56"
+                    materialDesign:PasswordBoxAssist.Password="{Binding ConfirmPassword, Mode=TwoWay}"
                     FontSize="16"
                     PasswordChanged="ValidateFields"
                     Foreground="{StaticResource ButtonTextBrush}"
                     Margin="0,0,0,40"/>
 
-            <Button x:Name="RegisterButton"
-                Content="Зарегистрироваться"
-                Height="45"
-                FontSize="16"
-                Background="White"
-                IsEnabled="False"
-                Click="RegisterButton_Click"
-                Foreground="{StaticResource ButtonTextBrush}"
-                BorderThickness="0"
-                materialDesign:ElevationAssist.Elevation="Dp1"
-                materialDesign:ButtonAssist.CornerRadius="10">
-                <Button.Effect>
-                    <DropShadowEffect BlurRadius="10" 
-                                ShadowDepth="1"
-                                Direction="270"
-                                Opacity="0.2"/>
-                </Button.Effect>
-            </Button>
+            <Button Content="Зарегистрироваться"
+                    Name="RegisterButton"
+                    Command="{Binding RegisterCommand}"
+                    IsEnabled="{Binding IsRegisterEnabled}"
+                    Height="45"
+                    FontSize="16"
+                    Background="White"
+                    Foreground="{StaticResource ButtonTextBrush}"
+                    BorderThickness="0"
+                    materialDesign:ElevationAssist.Elevation="Dp1"
+                    materialDesign:ButtonAssist.CornerRadius="10"/>
         </StackPanel>
     </Grid>
 </Page>

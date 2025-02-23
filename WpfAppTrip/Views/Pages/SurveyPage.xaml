@@ -4,14 +4,112 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:vm="clr-namespace:WpfAppTrip.ViewModels"
+      d:DataContext="{d:DesignInstance Type=vm:SurveyViewModel}"
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="1000"
       Title="Опрос">
 
-    <Grid>
-        <TextBlock Text="Страница опроса в разработке"
-                  HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
-                  Style="{StaticResource MaterialDesignHeadline5TextBlock}"/>
+    <Grid Margin="40">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок с номером вопроса -->
+        <TextBlock Text="{Binding CurrentQuestionText}"
+                  Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                  Margin="0,0,0,30"/>
+
+        <!-- Основной контент -->
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Текст вопроса -->
+            <TextBlock Text="{Binding CurrentQuestion.QuestionText}"
+                      Style="{StaticResource MaterialDesignBody1TextBlock}"
+                      FontSize="18"
+                      TextWrapping="Wrap"
+                      Margin="0,0,0,30"/>
+
+            <!-- Варианты ответов -->
+            <ItemsControl Grid.Row="1" 
+                         ItemsSource="{Binding CurrentAnswerOptions}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <RadioButton Style="{StaticResource MaterialDesignChoiceChipRadioButton}"
+                                   GroupName="AnswerOptions"
+                                   Margin="0,0,0,20"
+                                   Command="{Binding DataContext.SelectAnswerCommand, 
+                                             RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                   CommandParameter="{Binding OptionID}">
+                            <Grid Width="800">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Изображение варианта -->
+                                <Border Grid.Column="0" 
+                                        Width="180" 
+                                        Height="120" 
+                                        CornerRadius="10"
+                                        Margin="0,0,20,0">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="10" 
+                                                         ShadowDepth="1" 
+                                                         Direction="270" 
+                                                         Opacity="0.2"/>
+                                    </Border.Effect>
+                                    <Image Source="{Binding ImagePath}"
+                                           Stretch="UniformToFill"/>
+                                </Border>
+
+                                <!-- Текст варианта -->
+                                <TextBlock Grid.Column="1"
+                                         Text="{Binding OptionText}"
+                                         Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                         FontSize="16"
+                                         TextWrapping="Wrap"
+                                         VerticalAlignment="Center"/>
+                            </Grid>
+                        </RadioButton>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+
+        <!-- Кнопки навигации -->
+        <Grid Grid.Row="2" Margin="0,30,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Кнопка "Назад" -->
+            <Button Grid.Column="0"
+                    Content="Назад"
+                    Command="{Binding PreviousCommand}"
+                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                    Width="120"
+                    Height="45"
+                    FontSize="16"
+                    Visibility="{Binding CanGoBack, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+            <!-- Кнопка "Далее/Завершить" -->
+            <Button Grid.Column="2"
+                    Content="{Binding NextButtonText}"
+                    Command="{Binding NextCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}"
+                    Width="120"
+                    Height="45"
+                    FontSize="16"
+                    IsEnabled="{Binding IsAnswerSelected}"/>
+        </Grid>
     </Grid>
 </Page> 

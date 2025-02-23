@@ -3,7 +3,8 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using WpfAppTrip.Services;
-using WpfAppTrip.Views.Windows;
+using WpfAppTrip.ViewModels;
+using Unity;
 
 namespace WpfAppTrip.Views.Pages
 {
@@ -19,17 +20,34 @@ namespace WpfAppTrip.Views.Pages
         private System.Windows.Controls.TextBox _emailTextBox;
         private System.Windows.Controls.PasswordBox _passwordBox;
         private System.Windows.Controls.Button _loginButton;
+        private readonly INavigationService _navigationService;
+        private readonly IDialogService _dialogService;
+        private readonly LoginViewModel _viewModel;
 
         public Login()
         {
             InitializeComponent();
             _authService = new AuthService();
+            _navigationService = App.Container.Resolve<INavigationService>();
+            _dialogService = App.Container.Resolve<IDialogService>();
+            _viewModel = App.Container.Resolve<LoginViewModel>();
+            DataContext = _viewModel;
             
             // Инициализация элементов управления
             _phoneTextBox = (System.Windows.Controls.TextBox)FindName("PhoneTextBox");
             _emailTextBox = (System.Windows.Controls.TextBox)FindName("EmailTextBox");
             _passwordBox = (System.Windows.Controls.PasswordBox)FindName("PasswordBox");
             _loginButton = (System.Windows.Controls.Button)FindName("LoginButton");
+
+            // Привязка пароля через событие, так как PasswordBox не поддерживает привязку
+            if (PasswordBox != null)
+            {
+                PasswordBox.PasswordChanged += (s, e) =>
+                {
+                    if (_viewModel != null)
+                        _viewModel.Password = PasswordBox.Password;
+                };
+            }
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
@@ -39,8 +57,18 @@ namespace WpfAppTrip.Views.Pages
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            if (NavigationService?.CanGoBack == true)
-                NavigationService.GoBack();
+            // Получаем Frame из окна
+            var frame = Window.GetWindow(this)?.FindName("MainFrame") as Frame;
+            if (frame != null)
+            {
+                // Очищаем историю навигации
+                while (frame.CanGoBack)
+                {
+                    frame.RemoveBackEntry();
+                }
+                // Очищаем текущую страницу, чтобы показать стартовый контент
+                frame.Content = null;
+            }
         }
 
         private void ValidateFields(object sender, RoutedEventArgs e)
@@ -55,48 +83,15 @@ namespace WpfAppTrip.Views.Pages
             _loginButton.IsEnabled = isPhoneValid && isEmailValid && isPasswordValid;
         }
 
-        private async void LoginButton_Click(object sender, RoutedEventArgs e)
+        private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            _loginButton.IsEnabled = false;
-            try
-            {
-                string email = _emailTextBox.Text;
-                string password = _passwordBox.Password;
+            if (_viewModel != null)
+                _viewModel.LoginCommand.Execute(null);
+        }
 
-                if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-                {
-                    MessageBox.Show("Пожалуйста, заполните все поля", 
-                                  "Ошибка", 
-                                  MessageBoxButton.OK, 
-                                  MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (await _authService.LoginAsync(email, password))
-                {
-                    var mainWindow = new MainWindow();
-                    mainWindow.Show();
-                    Window.GetWindow(this).Close();
-                }
-                else
-                {
-                    MessageBox.Show("Неверный email или пароль", 
-                                  "Ошибка", 
-                                  MessageBoxButton.OK, 
-                                  MessageBoxImage.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при входе: {ex.Message}", 
-                              "Ошибка", 
-                              MessageBoxButton.OK, 
-                              MessageBoxImage.Error);
-            }
-            finally
-            {
-                _loginButton.IsEnabled = true;
-            }
+        private void RegisterButton_Click(object sender, RoutedEventArgs e)
+        {
+            _navigationService.NavigateToPage("Register");
         }
     }
 }
