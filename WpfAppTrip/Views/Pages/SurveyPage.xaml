@@ -44,38 +44,42 @@
                         <RadioButton Style="{StaticResource MaterialDesignChoiceChipRadioButton}"
                                    GroupName="AnswerOptions"
                                    Margin="0,0,0,20"
-                                   Command="{Binding DataContext.SelectAnswerCommand, 
-                                             RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                   CommandParameter="{Binding OptionID}">
+                                   Tag="{Binding OptionID}"
+                                   Checked="RadioButton_Checked">
                             <Grid Width="800">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Изображение варианта -->
+                                <!-- Вариант с картинкой -->
                                 <Border Grid.Column="0" 
                                         Width="180" 
                                         Height="120" 
                                         CornerRadius="10"
-                                        Margin="0,0,20,0">
+                                        Margin="0,0,20,0"
+                                        Visibility="{Binding HasImage, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <Border.Effect>
                                         <DropShadowEffect BlurRadius="10" 
                                                          ShadowDepth="1" 
                                                          Direction="270" 
                                                          Opacity="0.2"/>
                                     </Border.Effect>
-                                    <Image Source="{Binding ImagePath}"
+                                    <Image Source="{Binding ImagePath, Converter={StaticResource NullImageConverter}}"
                                            Stretch="UniformToFill"/>
                                 </Border>
 
                                 <!-- Текст варианта -->
-                                <TextBlock Grid.Column="1"
+                                <TextBlock Grid.Column="{Binding HasImage, Converter={StaticResource BooleanToIntConverter}, ConverterParameter='1:0'}"
                                          Text="{Binding OptionText}"
                                          Style="{StaticResource MaterialDesignBody1TextBlock}"
                                          FontSize="16"
                                          TextWrapping="Wrap"
-                                         VerticalAlignment="Center"/>
+                                         VerticalAlignment="Center">
+                                    <TextBlock.Margin>
+                                        <Binding Path="HasImage" Converter="{StaticResource BooleanToMarginConverter}" ConverterParameter="20,0,0,0:0,0,0,0"/>
+                                    </TextBlock.Margin>
+                                </TextBlock>
                             </Grid>
                         </RadioButton>
                     </DataTemplate>

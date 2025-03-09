@@ -46,6 +46,7 @@ namespace WpfAppTrip.ViewModels
         {
             IsWelcomePageVisible = false;
             _navigationService.NavigateToPage("Survey");
+            OnPropertyChanged(nameof(IsWelcomePageVisible));
         }
 
         private void NavigateToAdmin()

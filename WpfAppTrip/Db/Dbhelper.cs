@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace WpfAppTrip.Db
 
         public Dbhelper()
         {
-            _connectionString = (string)Application.Current.Resources["ConnectionString"];
+            _connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
         }
 
         /// <summary>

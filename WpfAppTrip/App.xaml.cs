@@ -3,6 +3,7 @@ using Unity;
 using WpfAppTrip.Services;
 using WpfAppTrip.ViewModels;
 using WpfAppTrip.Views.Windows;
+using WpfAppTrip.Helpers;
 
 namespace WpfAppTrip
 {
@@ -44,6 +45,10 @@ namespace WpfAppTrip
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            
+            // Копируем изображения из папки проекта в bin/Debug
+            ImagePathHelper.CopyImagesToOutput();
+            
             var loginWindow = LoginWindow.Instance;
             loginWindow.Show();
         }

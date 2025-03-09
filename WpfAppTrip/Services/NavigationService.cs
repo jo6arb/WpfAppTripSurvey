@@ -23,24 +23,26 @@ namespace WpfAppTrip.Services
 
         public void NavigateToPage(string pageName)
         {
-            if (_frame == null) return;
+            var mainWindow = MainWindow.Instance;
+            var frame = mainWindow.FindName("MainFrame") as Frame;
+            
+            if (frame == null) return;
 
-            Page page = null;
             switch (pageName)
             {
-                case "Register":
-                    page = new RegisterPage();
-                    break;
                 case "Survey":
-                    page = new SurveyPage();
+                    frame.Navigate(new SurveyPage());
                     break;
                 case "Admin":
-                    page = new AdminPage();
+                    frame.Navigate(new AdminPage());
+                    break;
+                case "Register":
+                    frame.Navigate(new RegisterPage());
+                    break;
+                case "Results":
+                    // TODO: Добавить страницу результатов
                     break;
             }
-
-            if (page != null)
-                _frame.Navigate(page);
         }
 
         public void ShowLoginWindow()

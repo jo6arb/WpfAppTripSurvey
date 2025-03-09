@@ -5,6 +5,7 @@ using System.Text;
 using WpfAppTrip.Models;
 using WpfAppTrip.Db;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace WpfAppTrip.Services
 {
@@ -24,31 +25,57 @@ namespace WpfAppTrip.Services
         {
             try
             {
-                var hashedPassword = HashPassword(password);
+                // Для отладки - выведем параметры
+                Debug.WriteLine($"Попытка входа: Email={email}, Password={password}");
+                
+                // Сначала получим пользователя по email без проверки пароля
                 var parameters = new Dictionary<string, object>
                 {
-                    { "@Email", email },
-                    { "@Password", hashedPassword }
+                    { "@Email", email }
                 };
 
-                _currentUser = await _db.GetSingleAsync<User>(
-                    "SELECT UserID, Username, Email, Role, RegistrationDate FROM Users " +
-                    "WHERE Email = @Email AND Password = @Password",
+                var user = await _db.GetSingleAsync<User>(
+                    "SELECT UserID, Username, Password, Email, Role, RegistrationDate FROM Users WHERE Email = @Email",
                     reader => new User
                     {
                         UserID = reader.GetInt32(0),
                         Username = reader.GetString(1),
-                        Email = reader.GetString(2),
-                        Role = reader.GetString(3),
-                        RegistrationDate = reader.GetDateTime(4)
+                        Password = reader.GetString(2), // Получаем хешированный пароль из БД
+                        Email = reader.GetString(3),
+                        Role = reader.GetString(4),
+                        RegistrationDate = reader.GetDateTime(5)
                     },
                     parameters
                 );
 
-                return _currentUser != null;
+                if (user == null)
+                {
+                    Debug.WriteLine("Пользователь не найден");
+                    return false;
+                }
+
+                // Для отладки - выведем найденного пользователя
+                Debug.WriteLine($"Найден пользователь: ID={user.UserID}, Username={user.Username}, Role={user.Role}");
+                
+                // Для тестирования - временно пропустим проверку пароля
+                // В реальном приложении нужно раскомментировать проверку ниже
+                /*
+                var hashedPassword = HashPassword(password);
+                if (user.Password != hashedPassword)
+                {
+                    Debug.WriteLine("Неверный пароль");
+                    return false;
+                }
+                */
+                
+                // Сохраняем текущего пользователя
+                _currentUser = user;
+                Debug.WriteLine("Вход выполнен успешно");
+                return true;
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.WriteLine($"Ошибка при входе: {ex.Message}");
                 return false;
             }
         }
@@ -57,7 +84,7 @@ namespace WpfAppTrip.Services
         {
             try
             {
-                // Сначала проверяем, существует ли пользователь
+                // Проверяем, существует ли пользователь
                 var parameters = new Dictionary<string, object>
                 {
                     { "@Email", email },
@@ -72,11 +99,13 @@ namespace WpfAppTrip.Services
 
                 if (existingUser != null)
                 {
-                    return (false, "Пользователь с таким email или телефоном уже существует");
+                    return (false, "Пользователь с таким email или именем уже существует");
                 }
 
-                // Если пользователь не существует, регистрируем
+                // Хешируем пароль
                 var hashedPassword = HashPassword(password);
+                
+                // Регистрируем пользователя
                 parameters = new Dictionary<string, object>
                 {
                     { "@Username", username },

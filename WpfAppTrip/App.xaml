@@ -2,7 +2,9 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:local="clr-namespace:WpfAppTrip" xmlns:system="clr-namespace:System;assembly=mscorlib">
+             xmlns:local="clr-namespace:WpfAppTrip"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:converters="clr-namespace:WpfAppTrip.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -16,7 +18,12 @@
 
             <!-- Material Design Settings -->
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-            <system:String x:Key="ConnectionString">Server=(localdb)\MSSQLLocalDB;Database=TourSurveyDB;Trusted_Connection=True;</system:String>
+            <system:String x:Key="ConnectionString">Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=TourSurveyDB;Integrated Security=True</system:String>
+
+            <!-- Конвертеры -->
+            <converters:BooleanToIntConverter x:Key="BooleanToIntConverter"/>
+            <converters:NullImageConverter x:Key="NullImageConverter"/>
+            <converters:BooleanToMarginConverter x:Key="BooleanToMarginConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

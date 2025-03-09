@@ -7,5 +7,6 @@ namespace WpfAppTrip.Models
         public string OptionText { get; set; }
         public string ImagePath { get; set; }
         public int Weight { get; set; }
+        public bool HasImage { get; set; }
     }
 } 
