@@ -11,6 +11,7 @@ using System.Linq;
 using System.Diagnostics;
 using WpfAppTrip.Helpers;
 using System.IO;
+using Unity;
 
 namespace WpfAppTrip.ViewModels
 {
@@ -19,6 +20,7 @@ namespace WpfAppTrip.ViewModels
         private readonly Dbhelper _db;
         private readonly INavigationService _navigationService;
         private readonly IDialogService _dialogService;
+        private readonly AuthService _authService;
         private ObservableCollection<Question> _questions;
         private ObservableCollection<AnswerOption> _currentAnswerOptions;
         private int _currentQuestionIndex;
@@ -27,10 +29,12 @@ namespace WpfAppTrip.ViewModels
 
         public SurveyViewModel(
             INavigationService navigationService,
-            IDialogService dialogService)
+            IDialogService dialogService,
+            AuthService authService)
         {
             _navigationService = navigationService;
             _dialogService = dialogService;
+            _authService = authService;
             _db = new Dbhelper();
             _questions = new ObservableCollection<Question>();
             _currentAnswerOptions = new ObservableCollection<AnswerOption>();
@@ -82,8 +86,14 @@ namespace WpfAppTrip.ViewModels
                 _questions = new ObservableCollection<Question>(questions);
                 if (_questions.Any())
                 {
+                    // Загружаем существующие ответы пользователя
+                    await LoadExistingAnswersAsync();
+                    
                     Debug.WriteLine($"Загружаем варианты ответов для вопроса ID={_questions[0].QuestionID}");
                     await LoadAnswerOptionsForQuestionAsync(_questions[0].QuestionID);
+                    
+                    // Проверяем, есть ли уже ответ на первый вопрос
+                    IsAnswerSelected = _userAnswers.ContainsKey(_questions[0].QuestionID);
                     
                     // Принудительно обновим свойства после загрузки данных
                     OnPropertyChanged(nameof(CurrentQuestionText));
@@ -99,6 +109,37 @@ namespace WpfAppTrip.ViewModels
             {
                 Debug.WriteLine($"Ошибка при загрузке вопросов: {ex.Message}");
                 _dialogService.ShowError($"Ошибка при загрузке вопросов: {ex.Message}");
+            }
+        }
+
+        private async Task LoadExistingAnswersAsync()
+        {
+            try
+            {
+                var currentUser = _authService.GetCurrentUser();
+                if (currentUser == null) return;
+
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@UserID", currentUser.UserID }
+                };
+
+                var answers = await _db.GetDataListAsync<(int QuestionID, int OptionID)>(
+                    "SELECT QuestionID, SelectedOptionID FROM UserAnswers WHERE UserID = @UserID",
+                    reader => (reader.GetInt32(0), reader.GetInt32(1)),
+                    parameters
+                );
+
+                foreach (var (questionId, optionId) in answers)
+                {
+                    _userAnswers[questionId] = optionId;
+                }
+
+                Debug.WriteLine($"Загружено {answers.Count} существующих ответов пользователя");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка при загрузке существующих ответов: {ex.Message}");
             }
         }
 
@@ -267,33 +308,67 @@ namespace WpfAppTrip.ViewModels
         {
             try
             {
-                foreach (var answer in _userAnswers)
+                var currentUser = _authService.GetCurrentUser();
+                if (currentUser == null)
                 {
-                    var parameters = new Dictionary<string, object>
-                    {
-                        { "@UserID", AuthService.CurrentUser.UserID },
-                        { "@QuestionID", answer.Key },
-                        { "@SelectedOptionID", answer.Value }
-                    };
-
-                    await _db.ExecuteNonQueryAsync(
-                        "INSERT INTO UserAnswers (UserID, QuestionID, SelectedOptionID) VALUES (@UserID, @QuestionID, @SelectedOptionID)",
-                        parameters
-                    );
+                    _dialogService.ShowError("Пользователь не авторизован");
+                    return;
                 }
 
-                _dialogService.ShowInfo("Ваши ответы успешно сохранены!");
+                // Начинаем транзакцию
+                using (var transaction = await _db.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        // Удаляем предыдущие ответы пользователя
+                        var deleteParams = new Dictionary<string, object>
+                        {
+                            { "@UserID", currentUser.UserID }
+                        };
+                        
+                        await _db.ExecuteTransactionAsync(transaction,
+                            "DELETE FROM UserAnswers WHERE UserID = @UserID",
+                            deleteParams);
+
+                        // Сохраняем новые ответы
+                        foreach (var answer in _userAnswers)
+                        {
+                            var parameters = new Dictionary<string, object>
+                            {
+                                { "@UserID", currentUser.UserID },
+                                { "@QuestionID", answer.Key },
+                                { "@SelectedOptionID", answer.Value }
+                            };
+
+                            await _db.ExecuteTransactionAsync(transaction,
+                                "INSERT INTO UserAnswers (UserID, QuestionID, SelectedOptionID) VALUES (@UserID, @QuestionID, @SelectedOptionID)",
+                                parameters);
+                        }
+
+                        // Фиксируем транзакцию
+                        transaction.Commit();
+                        _dialogService.ShowInfo("Ваши ответы успешно сохранены!");
+                    }
+                    catch (Exception)
+                    {
+                        // В случае ошибки откатываем транзакцию
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"Ошибка при сохранении ответов: {ex.Message}");
                 _dialogService.ShowError($"Ошибка при сохранении ответов: {ex.Message}");
             }
         }
 
         private void NavigateToResults()
         {
-            // TODO: Реализовать переход к результатам
-            _navigationService.NavigateToPage("Results");
+            // Просто возвращаем пользователя на главную страницу
+            _navigationService.NavigateToWelcome();
+            _dialogService.ShowInfo("Благодарим за прохождение опроса!");
         }
     }
 } 

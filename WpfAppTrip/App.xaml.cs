@@ -4,6 +4,7 @@ using WpfAppTrip.Services;
 using WpfAppTrip.ViewModels;
 using WpfAppTrip.Views.Windows;
 using WpfAppTrip.Helpers;
+using WpfAppTrip.Db;
 
 namespace WpfAppTrip
 {
@@ -28,8 +29,9 @@ namespace WpfAppTrip
 
             // Регистрация сервисов
             container.RegisterSingleton<IDialogService, DialogService>();
-            container.RegisterSingleton<AuthService>();
             container.RegisterSingleton<INavigationService, NavigationService>();
+            container.RegisterSingleton<AuthService>();
+            container.RegisterSingleton<Dbhelper>();
 
             // Регистрация ViewModels
             container.RegisterType<LoginViewModel>();

@@ -7,94 +7,112 @@
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       d:DataContext="{d:DesignInstance Type=vm:RegisterViewModel}"
       mc:Ignorable="d" 
-      d:DesignHeight="700" d:DesignWidth="400"
+      d:DesignHeight="700" d:DesignWidth="1000"
       Title="Регистрация"
       Loaded="Page_Loaded"
-      Background="#E3F2FD">
+      Background="#B3E5FC">
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Левая декоративная панель -->
+        <Border Grid.Column="0" Background="#A1DCFB"/>
+        
+        <!-- Центральная панель с формой регистрации -->
+        <Grid Grid.Column="1" Width="500">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <!-- Кнопка "Назад" -->
-        <Button Style="{StaticResource MaterialDesignFlatButton}"
-                Command="{Binding BackCommand}"
-                HorizontalAlignment="Left"
-                Margin="0,0,0,20">
-            <StackPanel Orientation="Horizontal">
-                <materialDesign:PackIcon Kind="ArrowLeft" 
-                                   Height="24" 
-                                   Width="24"/>
-                <TextBlock Text="Назад"
-                      Margin="8,0,0,0"
-                      VerticalAlignment="Center"/>
+            <!-- Кнопка "Назад" -->
+            <Button Style="{StaticResource MaterialDesignFlatButton}"
+                    Command="{Binding BackCommand}"
+                    HorizontalAlignment="Left"
+                    Margin="16,16,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="ArrowLeft" 
+                                       Height="24" 
+                                       Width="24"/>
+                    <TextBlock Text="Назад"
+                          Margin="8,0,0,0"
+                          VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Форма регистрации -->
+            <StackPanel Grid.Row="1"
+                    Margin="50,0"
+                    VerticalAlignment="Center">
+
+                <TextBlock Text="Зарегистрироваться"
+                      FontSize="28"
+                      FontWeight="Medium"
+                      Margin="0,0,0,40"/>
+
+                <TextBlock Text="Телефон" 
+                           Margin="0,0,0,8"
+                           FontSize="16"/>
+                <TextBox x:Name="PhoneTextBox"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Height="54"
+                     Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
+                     FontSize="18"
+                     TextChanged="ValidateFields"
+                     Margin="0,0,0,20"
+                     Background="White"/>
+
+                <TextBlock Text="Ваш e-mail" 
+                           Margin="0,0,0,8"
+                           FontSize="16"/>
+                <TextBox x:Name="EmailTextBox"
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     Height="54"
+                     Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
+                     FontSize="18"
+                     TextChanged="ValidateFields"
+                     Margin="0,0,0,20"
+                     Background="White"/>
+
+                <TextBlock Text="Пароль" 
+                           Margin="0,0,0,8"
+                           FontSize="16"/>
+                <PasswordBox x:Name="PasswordBox"
+                        Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
+                        Height="54"
+                        PasswordChanged="ValidateFields"
+                        FontSize="18"
+                        Margin="0,0,0,20"
+                        Background="White"/>
+
+                <TextBlock Text="Повторите пароль" 
+                           Margin="0,0,0,8"
+                           FontSize="16"/>
+                <PasswordBox x:Name="ConfirmPasswordBox"
+                        Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
+                        Height="54"
+                        PasswordChanged="ValidateFields"
+                        FontSize="18"
+                        Margin="0,0,0,40"
+                        Background="White"/>
+
+                <Button Content="Зарегистрироваться"
+                        x:Name="RegisterButton"
+                        Click="RegisterButton_Click"
+                        Height="54"
+                        FontSize="20"
+                        Background="White"
+                        Foreground="#2196F3"
+                        BorderThickness="0"
+                        materialDesign:ButtonAssist.CornerRadius="4"/>
             </StackPanel>
-        </Button>
-
-        <!-- Форма регистрации -->
-        <StackPanel Grid.Row="1"
-                Margin="30,0"
-                VerticalAlignment="Center">
-
-            <TextBlock Text="Зарегистрироваться"
-                  Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                  Foreground="{StaticResource ButtonTextBrush}"
-                  FontWeight="Medium"
-                  Margin="0,0,0,40"/>
-
-            <TextBox x:Name="PhoneTextBox"
-                 materialDesign:HintAssist.Hint="Телефон"
-                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                 Height="56"
-                 Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
-                 FontSize="16"
-                 TextChanged="ValidateFields"
-                 Foreground="{StaticResource ButtonTextBrush}"
-                 Margin="0,0,0,20"/>
-
-            <TextBox x:Name="EmailTextBox"
-                 materialDesign:HintAssist.Hint="Ваш e-mail"
-                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                 Height="56"
-                 Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
-                 FontSize="16"
-                 TextChanged="ValidateFields"
-                 Foreground="{StaticResource ButtonTextBrush}"
-                 Margin="0,0,0,20"/>
-
-            <PasswordBox x:Name="PasswordBox"
-                    materialDesign:HintAssist.Hint="Пароль"
-                    Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
-                    Height="56"
-                    materialDesign:PasswordBoxAssist.Password="{Binding Password, Mode=TwoWay}"
-                    FontSize="16"
-                    PasswordChanged="ValidateFields"
-                    Foreground="{StaticResource ButtonTextBrush}"
-                    Margin="0,0,0,20"/>
-
-            <PasswordBox x:Name="ConfirmPasswordBox"
-                    materialDesign:HintAssist.Hint="Повторите пароль"
-                    Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
-                    Height="56"
-                    materialDesign:PasswordBoxAssist.Password="{Binding ConfirmPassword, Mode=TwoWay}"
-                    FontSize="16"
-                    PasswordChanged="ValidateFields"
-                    Foreground="{StaticResource ButtonTextBrush}"
-                    Margin="0,0,0,40"/>
-
-            <Button Content="Зарегистрироваться"
-                    Name="RegisterButton"
-                    Command="{Binding RegisterCommand}"
-                    IsEnabled="{Binding IsRegisterEnabled}"
-                    Height="45"
-                    FontSize="16"
-                    Background="White"
-                    Foreground="{StaticResource ButtonTextBrush}"
-                    BorderThickness="0"
-                    materialDesign:ElevationAssist.Elevation="Dp1"
-                    materialDesign:ButtonAssist.CornerRadius="10"/>
-        </StackPanel>
+        </Grid>
+        
+        <!-- Правая декоративная панель -->
+        <Border Grid.Column="2" Background="#A1DCFB"/>
     </Grid>
 </Page>

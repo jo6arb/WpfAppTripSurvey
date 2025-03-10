@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Title="МаршрутМастер" 
         Height="700" 
-        Width="1000"
+        Width="1200"
         WindowStartupLocation="CenterScreen"
         Background="#E3F2FD"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel}">
@@ -32,7 +32,8 @@
                             DockPanel.Dock="Right">
                     <TextBlock Text="{Binding CurrentUserName}"
                               VerticalAlignment="Center"
-                              Margin="0,0,16,0"/>
+                              Margin="8,0,16,0"/>
+                    
                     <Button Style="{StaticResource MaterialDesignFlatButton}"
                             Command="{Binding LogoutCommand}"
                             Content="Выйти"/>
@@ -61,16 +62,16 @@
         <Grid Grid.Row="1" 
               x:Name="WelcomePage"
               Visibility="{Binding IsWelcomePageVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-            <!-- Левая часть с изображением и текстом -->
-            <StackPanel Grid.Column="0" 
-                        Margin="40"
-                        VerticalAlignment="Center">
-
+            <!-- Центральный блок с изображением и текстом -->
+            <StackPanel Grid.Row="1" 
+                        HorizontalAlignment="Center">
+                
                 <Border Width="300" 
                         Height="300" 
                         CornerRadius="20"
@@ -82,60 +83,25 @@
                                         Direction="270" 
                                         Opacity="0.2"/>
                     </Border.Effect>
-                    <Image Source="pack://application:,,,/Images/logo.jpeg" 
+                    <Image Source="/Images/travel-logo.png" 
                            Stretch="UniformToFill"
                            Margin="30"/>
                 </Border>
 
-                <TextBlock Text="Добро пожаловать"
+                <TextBlock Text="Опрос для подбора лучшего тура"
                            HorizontalAlignment="Center" 
                            Style="{StaticResource MaterialDesignHeadline4TextBlock}"
                            Foreground="{StaticResource ButtonTextBrush}"
-                           Margin="0,0,0,10"/>
-
-                <TextBlock Text="в МаршрутМастер!"
-                           HorizontalAlignment="Center"
-                           Style="{StaticResource MaterialDesignHeadline4TextBlock}"
-                           Foreground="{StaticResource ButtonTextBrush}"
                            Margin="0,0,0,30"/>
-            </StackPanel>
-
-            <!-- Правая часть с описанием и кнопкой -->
-            <StackPanel Grid.Column="1" 
-                        Margin="40"
-                        VerticalAlignment="Center">
-
-                <TextBlock TextWrapping="Wrap"
-                          TextAlignment="Center"
-                          Style="{StaticResource MaterialDesignBody1TextBlock}"
-                          Foreground="{StaticResource ButtonTextBrush}"
-                          LineHeight="24"
-                          Margin="0,0,0,40">
-                    <Run Text="Приветствуем вас! Пройдите наш быстрый опрос, чтобы мы могли подобрать идеальный вариант отдыха специально для вас."/>
-                    <LineBreak/>
-                    <LineBreak/>
-                    <Run Text="Экономьте свое время, избавьтесь от стресса принятия решений и получите уникальные персонализированные рекомендации для незабываемого отпуска!"/>
-                    <LineBreak/>
-                    <LineBreak/>
-                    <Run Text="Начнем?"/>
-                </TextBlock>
-
-                <Button Content="Пройти опрос"
-                        Height="50"
+                
+                <Button Content="Начать опрос"
+                        Command="{Binding NavigateToSurveyCommand}"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Background="{StaticResource ButtonTextBrush}"
+                        Foreground="White"
                         FontSize="18"
-                        Background="White"
-                        Foreground="{StaticResource ButtonTextBrush}"
-                        BorderThickness="0"
-                        materialDesign:ElevationAssist.Elevation="Dp1"
-                        materialDesign:ButtonAssist.CornerRadius="10"
-                        Command="{Binding NavigateToSurveyCommand}">
-                    <Button.Effect>
-                        <DropShadowEffect BlurRadius="10" 
-                                        ShadowDepth="1" 
-                                        Direction="270" 
-                                        Opacity="0.2"/>
-                    </Button.Effect>
-                </Button>
+                        Height="54"
+                        Width="220"/>
             </StackPanel>
         </Grid>
     </Grid>

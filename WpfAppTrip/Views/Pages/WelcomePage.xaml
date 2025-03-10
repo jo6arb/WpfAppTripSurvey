@@ -4,56 +4,69 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:vm="clr-namespace:WpfAppTrip.ViewModels"
       mc:Ignorable="d" 
-      d:DesignHeight="700" d:DesignWidth="400"
+      d:DesignHeight="700" d:DesignWidth="1000"
       Title="Добро пожаловать"
-      Background="#E3F2FD">
+      Background="#B3E5FC">
 
-    <StackPanel VerticalAlignment="Center" Margin="30,0">
-        <!-- Логотип и название -->
-        <Border Width="240" 
-                Height="240" 
-                CornerRadius="20"
-                Background="#E3F2FD"
-                Margin="0,0,0,15">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="10" 
-                                 ShadowDepth="1" 
-                                 Direction="270" 
-                                 Opacity="0.2"/>
-            </Border.Effect>
-            <Image Source="pack://application:,,,/Images/logo.jpeg" 
-                   Stretch="UniformToFill"
-                   Margin="20"/>
-        </Border>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Левая декоративная панель (можно добавить фоновое изображение) -->
+        <Border Grid.Column="0" Background="#A1DCFB"/>
+        
+        <!-- Центральный блок с логотипом и авторизацией -->
+        <StackPanel Grid.Column="1" 
+                    VerticalAlignment="Center" 
+                    Margin="80,0">
+            <!-- Логотип и название -->
+            <Border Width="260" 
+                    Height="260" 
+                    CornerRadius="20"
+                    Background="#B3E5FC"
+                    Margin="0,0,0,20">
+                <Image Source="/Images/travel-logo.png" 
+                       Stretch="UniformToFill"
+                       Margin="20"/>
+            </Border>
 
-        <TextBlock Text="МаршрутМастер"
-                   HorizontalAlignment="Center"
-                   Style="{StaticResource MaterialDesignHeadline4TextBlock}"
-                   Foreground="{StaticResource ButtonTextBrush}"
-                   Margin="0,0,0,100"/>
+            <TextBlock Text="МаршрутМастер"
+                       HorizontalAlignment="Center"
+                       FontSize="36"
+                       FontWeight="Medium"
+                       Margin="0,0,0,70"/>
 
-        <!-- Кнопки -->
-        <Button Height="45"
-                Content="войти"
-                FontSize="20"
-                Background="White"
-                Foreground="{StaticResource ButtonTextBrush}"
-                BorderThickness="0"
-                FontWeight="Medium"                       
-                materialDesign:ElevationAssist.Elevation="Dp1"
-                materialDesign:ButtonAssist.CornerRadius="10"
-                Command="{Binding LoginCommand}"
-                Margin="0,0,0,25"/>
+            <!-- Кнопки -->
+            <Button x:Name="LoginButton"
+                    Height="54"
+                    Width="300"
+                    Content="Войти"
+                    FontSize="20"
+                    Background="White"
+                    Foreground="#2196F3"
+                    BorderThickness="0"
+                    materialDesign:ButtonAssist.CornerRadius="4"
+                    Click="LoginButton_Click"
+                    Margin="0,0,0,30"/>
 
-        <Button Height="45"
-                Content="зарегистрироваться"
-                FontSize="20"
-                Background="White"
-                Foreground="{StaticResource ButtonTextBrush}"
-                BorderThickness="0"
-                materialDesign:ElevationAssist.Elevation="Dp1"
-                materialDesign:ButtonAssist.CornerRadius="10"
-                Command="{Binding RegisterCommand}"/>
-    </StackPanel>
+            <Button x:Name="RegisterButton"
+                    Height="54"
+                    Width="300"
+                    Content="Зарегистрироваться"
+                    FontSize="20"
+                    Background="White"
+                    Foreground="#2196F3"
+                    BorderThickness="0"
+                    materialDesign:ButtonAssist.CornerRadius="4"
+                    Click="RegisterButton_Click"/>
+        </StackPanel>
+        
+        <!-- Правая декоративная панель -->
+        <Border Grid.Column="2" Background="#A1DCFB"/>
+    </Grid>
 </Page> 

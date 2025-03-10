@@ -3,6 +3,8 @@ using System.Windows;
 using System.Windows.Controls;
 using WpfAppTrip.ViewModels;
 using Unity;
+using WpfAppTrip.Services;
+using WpfAppTrip.Views.Pages;
 
 namespace WpfAppTrip.Views.Windows
 {
@@ -13,12 +15,13 @@ namespace WpfAppTrip.Views.Windows
     {
         private static MainWindow _instance;
         private readonly MainViewModel _viewModel;
+        private readonly INavigationService _navigationService;
         
         public static MainWindow Instance
         {
             get
             {
-                if (_instance == null || !_instance.IsLoaded)
+                if (_instance == null)
                 {
                     _instance = new MainWindow();
                 }
@@ -30,19 +33,31 @@ namespace WpfAppTrip.Views.Windows
         {
             InitializeComponent();
             _viewModel = App.Container.Resolve<MainViewModel>();
+            _navigationService = App.Container.Resolve<INavigationService>();
             DataContext = _viewModel;
 
-            // Показываем приветственную страницу по умолчанию
-            _viewModel.IsWelcomePageVisible = true;
+            // При первом запуске показываем страницу приветствия
+            if (MainFrame != null)
+            {
+                MainFrame.Navigate(new WelcomePage());
+            }
             
             // Обновляем все свойства
             _viewModel.UpdateAllProperties();
+
+            // Регистрируем обработчик закрытия окна
+            Closed += MainWindow_Closed;
+        }
+
+        private void MainWindow_Closed(object sender, EventArgs e)
+        {
+            _instance = null;
         }
 
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            _instance = null;
+            Application.Current.Shutdown();
         }
 
         private void StartSurveyButton_Click(object sender, RoutedEventArgs e)
@@ -51,6 +66,12 @@ namespace WpfAppTrip.Views.Windows
             {
                 _viewModel.NavigateToSurveyCommand.Execute(null);
             }
+        }
+
+        // Вспомогательный метод для получения MainFrame из других классов
+        public Frame GetMainFrame()
+        {
+            return MainFrame;
         }
     }
 }

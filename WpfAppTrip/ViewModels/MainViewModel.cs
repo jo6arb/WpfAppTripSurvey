@@ -1,6 +1,8 @@
+using System;
 using System.Windows.Input;
 using WpfAppTrip.Commands;
 using WpfAppTrip.Services;
+using System.Diagnostics;
 
 namespace WpfAppTrip.ViewModels
 {
@@ -20,22 +22,31 @@ namespace WpfAppTrip.ViewModels
             _authService = authService;
             _dialogService = dialogService;
 
-            NavigateToSurveyCommand = new RelayCommand(_ => NavigateToSurvey());
-            NavigateToAdminCommand = new RelayCommand(_ => NavigateToAdmin(), _ => IsAdmin);
-            LogoutCommand = new RelayCommand(_ => Logout());
+            // Инициализация команд
+            NavigateToSurveyCommand = new RelayCommand(param => NavigateToSurvey());
+            NavigateToAdminCommand = new RelayCommand(param => NavigateToAdmin(), param => CanNavigateToAdmin());
+            LogoutCommand = new RelayCommand(param => Logout());
 
-            // Обновляем состояние при создании
-            UpdateAllProperties();
+            // Подписываемся на событие навигации
+            _navigationService.Navigated += (sender, e) =>
+            {
+                _isWelcomePageVisible = false;
+                OnPropertyChanged(nameof(IsWelcomePageVisible));
+            };
         }
 
-        public bool IsUserLoggedIn => AuthService.CurrentUser != null;
-        public bool IsAdmin => AuthService.CurrentUser?.IsAdmin ?? false;
-        public string CurrentUserName => AuthService.CurrentUser?.Username ?? string.Empty;
+        public bool IsUserLoggedIn => _authService.GetCurrentUser() != null;
+        public bool IsAdmin => _authService.IsCurrentUserAdmin();
+        public string CurrentUserName => _authService.GetCurrentUser()?.Username ?? string.Empty;
 
         public bool IsWelcomePageVisible
         {
             get => _isWelcomePageVisible;
-            set => SetProperty(ref _isWelcomePageVisible, value);
+            set
+            {
+                _isWelcomePageVisible = value;
+                OnPropertyChanged();
+            }
         }
 
         public ICommand NavigateToSurveyCommand { get; }
@@ -44,39 +55,54 @@ namespace WpfAppTrip.ViewModels
 
         private void NavigateToSurvey()
         {
+            Debug.WriteLine("Переход к опросу...");
+            
+            if (!IsUserLoggedIn)
+            {
+                _dialogService.ShowError("Для прохождения опроса необходимо войти в систему");
+                _navigationService.ShowLoginWindow();
+                return;
+            }
+            
             IsWelcomePageVisible = false;
             _navigationService.NavigateToPage("Survey");
             OnPropertyChanged(nameof(IsWelcomePageVisible));
+            Debug.WriteLine("Навигация к опросу выполнена");
         }
 
         private void NavigateToAdmin()
         {
-            if (IsAdmin)
+            Debug.WriteLine("Переход к админ-панели...");
+            if (!_authService.IsCurrentUserAdmin())
             {
-                IsWelcomePageVisible = false;
-                _navigationService.NavigateToPage("Admin");
+                _dialogService.ShowError("У вас нет прав администратора.");
+                return;
             }
-            else
-            {
-                _dialogService.ShowWarning("У вас нет прав для доступа к этой странице");
-            }
+
+            IsWelcomePageVisible = false;
+            _navigationService.NavigateToPage("Admin");
+            OnPropertyChanged(nameof(IsWelcomePageVisible));
+        }
+
+        private bool CanNavigateToAdmin()
+        {
+            return _authService.IsCurrentUserAdmin();
         }
 
         private void Logout()
         {
-            if (_dialogService.ShowConfirm("Вы действительно хотите выйти?"))
-            {
-                _authService.Logout();
-                _navigationService.ShowLoginWindow();
-            }
+            _authService.Logout();
+            IsWelcomePageVisible = true;
+            OnPropertyChanged(nameof(IsUserLoggedIn));
+            OnPropertyChanged(nameof(IsAdmin));
+            OnPropertyChanged(nameof(CurrentUserName));
         }
 
         public void UpdateAllProperties()
         {
             OnPropertyChanged(nameof(IsUserLoggedIn));
-            OnPropertyChanged(nameof(CurrentUserName));
             OnPropertyChanged(nameof(IsAdmin));
-            OnPropertyChanged(nameof(IsWelcomePageVisible));
+            OnPropertyChanged(nameof(CurrentUserName));
         }
     }
 } 

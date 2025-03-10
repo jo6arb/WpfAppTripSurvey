@@ -103,13 +103,14 @@ namespace WpfAppTrip.ViewModels
             IsLoginEnabled = false;
             try
             {
-                if (await _authService.LoginAsync(Email, Password))
+                var (success, error) = await _authService.LoginAsync(Email, Password);
+                if (success)
                 {
                     _navigationService.ShowMainWindow();
                 }
                 else
                 {
-                    _dialogService.ShowError("Неверный email или пароль");
+                    _dialogService.ShowError(error);
                 }
             }
             catch (Exception ex)

@@ -1,44 +1,29 @@
 ﻿using System;
 using System.Globalization;
-using System.IO;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
 namespace WpfAppTrip.Converters
 {
+    /// <summary>
+    /// Конвертер, который обрабатывает null значения для изображений
+    /// </summary>
     public class NullImageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null || string.IsNullOrEmpty(value.ToString()))
-                return null;
+                return DependencyProperty.UnsetValue;
 
             try
             {
                 string imagePath = value.ToString();
-                
-                // Проверяем, существует ли файл
-                if (File.Exists(imagePath))
-                {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                    bitmap.UriSource = new Uri(imagePath, UriKind.Absolute);
-                    bitmap.EndInit();
-                    bitmap.Freeze(); // Для улучшения производительности
-                    
-                    System.Diagnostics.Debug.WriteLine($"Изображение успешно загружено: {imagePath}");
-                    return bitmap;
-                }
-                
-                System.Diagnostics.Debug.WriteLine($"Файл не существует: {imagePath}");
-                return null;
+                return new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка при загрузке изображения: {ex.Message}");
-                return null;
+                return DependencyProperty.UnsetValue;
             }
         }
 

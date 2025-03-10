@@ -5,42 +5,48 @@ using System.Windows.Data;
 
 namespace WpfAppTrip.Converters
 {
+    /// <summary>
+    /// Конвертер для преобразования логического значения в отступы
+    /// </summary>
     public class BooleanToMarginConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool boolValue)
             {
+                // По умолчанию отступы для true и false
+                var trueMargin = new Thickness(0);
+                var falseMargin = new Thickness(0);
+
+                // Если передан параметр в виде строки с форматом "left,top,right,bottom:left,top,right,bottom"
                 if (parameter is string paramString)
                 {
                     var parts = paramString.Split(':');
                     if (parts.Length == 2)
                     {
-                        var trueMargin = parts[0].Split(',');
-                        var falseMargin = parts[1].Split(',');
-                        
-                        if (boolValue && trueMargin.Length == 4)
+                        var trueParts = parts[0].Split(',');
+                        var falseParts = parts[1].Split(',');
+
+                        if (trueParts.Length == 4 && falseParts.Length == 4)
                         {
-                            return new Thickness(
-                                double.Parse(trueMargin[0]),
-                                double.Parse(trueMargin[1]),
-                                double.Parse(trueMargin[2]),
-                                double.Parse(trueMargin[3])
-                            );
-                        }
-                        else if (!boolValue && falseMargin.Length == 4)
-                        {
-                            return new Thickness(
-                                double.Parse(falseMargin[0]),
-                                double.Parse(falseMargin[1]),
-                                double.Parse(falseMargin[2]),
-                                double.Parse(falseMargin[3])
-                            );
+                            trueMargin = new Thickness(
+                                double.Parse(trueParts[0], CultureInfo.InvariantCulture),
+                                double.Parse(trueParts[1], CultureInfo.InvariantCulture),
+                                double.Parse(trueParts[2], CultureInfo.InvariantCulture),
+                                double.Parse(trueParts[3], CultureInfo.InvariantCulture));
+
+                            falseMargin = new Thickness(
+                                double.Parse(falseParts[0], CultureInfo.InvariantCulture),
+                                double.Parse(falseParts[1], CultureInfo.InvariantCulture),
+                                double.Parse(falseParts[2], CultureInfo.InvariantCulture),
+                                double.Parse(falseParts[3], CultureInfo.InvariantCulture));
                         }
                     }
                 }
-                return boolValue ? new Thickness(20, 0, 0, 0) : new Thickness(0);
+
+                return boolValue ? trueMargin : falseMargin;
             }
+
             return new Thickness(0);
         }
 

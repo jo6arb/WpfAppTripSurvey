@@ -237,22 +237,28 @@ namespace WpfAppTrip.Helpers
                     return;
                 }
                 
-                if (!Directory.Exists(targetDir))
-                {
-                    Directory.CreateDirectory(targetDir);
-                }
+                // Создаем папку назначения, если её нет
+                Directory.CreateDirectory(targetDir);
                 
                 // Копируем все подпапки и файлы
                 foreach (string dirPath in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
                 {
-                    Directory.CreateDirectory(dirPath.Replace(sourceDir, targetDir));
+                    string newPath = dirPath.Replace(sourceDir, targetDir);
+                    if (!Directory.Exists(newPath))
+                    {
+                        Directory.CreateDirectory(newPath);
+                        Debug.WriteLine($"Создана папка: {newPath}");
+                    }
                 }
                 
                 foreach (string filePath in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
                 {
                     string newPath = filePath.Replace(sourceDir, targetDir);
-                    File.Copy(filePath, newPath, true);
-                    Debug.WriteLine($"Скопирован файл: {filePath} -> {newPath}");
+                    if (!File.Exists(newPath) || new FileInfo(filePath).LastWriteTime > new FileInfo(newPath).LastWriteTime)
+                    {
+                        File.Copy(filePath, newPath, true);
+                        Debug.WriteLine($"Скопирован файл: {filePath} -> {newPath}");
+                    }
                 }
                 
                 Debug.WriteLine("Изображения успешно скопированы в выходную папку");
@@ -260,6 +266,7 @@ namespace WpfAppTrip.Helpers
             catch (Exception ex)
             {
                 Debug.WriteLine($"Ошибка при копировании изображений: {ex.Message}");
+                // Не выбрасываем исключение, чтобы не прерывать запуск приложения
             }
         }
     }
