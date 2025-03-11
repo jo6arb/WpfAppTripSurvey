@@ -27,5 +27,10 @@ namespace WpfAppTrip.Views.Pages
         {
             _navigationService.NavigateToPage("Register");
         }
+
+        private void StartSurveyButton_Click(object sender, RoutedEventArgs e)
+        {
+            _navigationService.NavigateToPage("Survey");
+        }
     }
 } 

@@ -87,11 +87,19 @@
     </Compile>
     <Compile Include="Converters\BooleanToIntConverter.cs" />
     <Compile Include="Converters\BooleanToMarginConverter.cs" />
+    <Compile Include="Converters\InverseBooleanConverter.cs" />
+    <Compile Include="Converters\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\NullImageConverter.cs" />
+    <Compile Include="Models\Booking.cs" />
+    <Compile Include="Models\MatchedTour.cs" />
     <!-- Модели -->
     <Compile Include="Models\Question.cs" />
     <Compile Include="Models\AnswerOption.cs" />
+    <Compile Include="Models\Tour.cs" />
+    <Compile Include="Models\TourCategory.cs" />
+    <Compile Include="Models\TourCharacteristic.cs" />
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\UserAnswer.cs" />
     <!-- ViewModels -->
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
@@ -110,6 +118,10 @@
     <Compile Include="Commands\RelayCommand.cs" />
     <!-- Helpers -->
     <Compile Include="Helpers\ImagePathHelper.cs" />
+    <Compile Include="ViewModels\ToursViewModel.cs" />
+    <Compile Include="Views\Pages\Tours.xaml.cs">
+      <DependentUpon>Tours.xaml</DependentUpon>
+    </Compile>
     <!-- Views -->
     <Page Include="Views\**\*.xaml">
       <SubType>Designer</SubType>
@@ -118,6 +130,10 @@
     <Compile Include="Views\**\*.xaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>
+    <Page Include="Views\Pages\Tours.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Resource Include="Images\Icon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>

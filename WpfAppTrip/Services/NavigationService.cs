@@ -40,7 +40,8 @@ namespace WpfAppTrip.Services
                 { "Login", typeof(Login) },
                 { "Register", typeof(RegisterPage) },
                 { "Survey", typeof(SurveyPage) },
-                { "Admin", typeof(AdminPage) }
+                { "Admin", typeof(AdminPage) },
+                { "Tours", typeof(Tours) }
             };
             
             Debug.WriteLine("NavigationService: Зарегистрированы страницы:");
@@ -206,6 +207,14 @@ namespace WpfAppTrip.Services
         public void NavigateToAdmin()
         {
             NavigateToPage("Admin");
+        }
+
+        /// <summary>
+        /// Переходит к странице туров
+        /// </summary>
+        public void NavigateToTours()
+        {
+            NavigateToPage("Tours");
         }
 
         /// <summary>

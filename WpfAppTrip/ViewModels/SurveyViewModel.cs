@@ -366,9 +366,9 @@ namespace WpfAppTrip.ViewModels
 
         private void NavigateToResults()
         {
-            // Просто возвращаем пользователя на главную страницу
-            _navigationService.NavigateToWelcome();
-            _dialogService.ShowInfo("Благодарим за прохождение опроса!");
+            // Перенаправляем на страницу туров вместо главной
+            _navigationService.NavigateToTours();
+            _dialogService.ShowInfo("Благодарим за прохождение опроса! Мы подобрали для вас подходящие туры.");
         }
     }
 } 

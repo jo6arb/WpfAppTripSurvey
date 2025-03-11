@@ -15,6 +15,15 @@
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel}">
     <Window.Resources>
         <SolidColorBrush x:Key="ButtonTextBrush" Color="#2196F3"/>
+        
+        <!-- Стиль для кнопок меню -->
+        <Style x:Key="MenuButtonStyle" TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Margin" Value="8,0"/>
+            <Setter Property="Padding" Value="16,8"/>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -23,40 +32,81 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Верхнее меню -->
-        <materialDesign:ColorZone Mode="PrimaryMid" 
+        <!-- Верхнее меню с улучшенным стилем -->
+        <materialDesign:ColorZone Mode="PrimaryDark" 
                                  Padding="16"
+                                 materialDesign:ShadowAssist.ShadowDepth="Depth2"
                                  Visibility="{Binding IsUserLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}">
             <DockPanel>
-                <StackPanel Orientation="Horizontal"
-                            DockPanel.Dock="Right">
-                    <TextBlock Text="{Binding CurrentUserName}"
-                              VerticalAlignment="Center"
-                              Margin="8,0,16,0"/>
-                    
-                    <Button Style="{StaticResource MaterialDesignFlatButton}"
-                            Command="{Binding LogoutCommand}"
-                            Content="Выйти"/>
+                <!-- Логотип и название приложения -->
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                    <materialDesign:PackIcon Kind="Map" Width="24" Height="24" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="МаршрутМастер" 
+                               FontSize="18" 
+                               FontWeight="Bold" 
+                               VerticalAlignment="Center"
+                               Margin="0,0,24,0"/>
                 </StackPanel>
                 
-                <StackPanel Orientation="Horizontal">
-                    <Button Style="{StaticResource MaterialDesignFlatButton}"
-                            Command="{Binding NavigateToSurveyCommand}"
-                            Content="Опрос"/>
+                <!-- Информация о пользователе и кнопка выхода -->
+                <StackPanel Orientation="Horizontal"
+                            DockPanel.Dock="Right">
+                    <materialDesign:PackIcon Kind="Account" 
+                                           Width="24" 
+                                           Height="24" 
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                    <TextBlock Text="{Binding CurrentUserName}"
+                              VerticalAlignment="Center"
+                              FontWeight="Medium"
+                              Margin="0,0,16,0"/>
+                    
+                    <Button Style="{StaticResource MenuButtonStyle}"
+                            Command="{Binding LogoutCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Logout" 
+                                                   Width="20" 
+                                                   Height="20" 
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
+                            <TextBlock Text="Выйти" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                
+                <!-- Навигационные кнопки -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Style="{StaticResource MenuButtonStyle}"
+                            Command="{Binding NavigateToSurveyCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Poll" 
+                                                   Width="20" 
+                                                   Height="20" 
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
+                            <TextBlock Text="Опрос" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                     
                     <!-- Кнопка администратора -->
-                    <Button Style="{StaticResource MaterialDesignFlatButton}"
+                    <Button Style="{StaticResource MenuButtonStyle}"
                             Command="{Binding NavigateToAdminCommand}"
-                            Content="Управление пользователями"
-                            Visibility="{Binding IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            Visibility="{Binding IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="AccountSupervisor" 
+                                                   Width="20" 
+                                                   Height="20" 
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
+                            <TextBlock Text="Управление пользователями" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </DockPanel>
         </materialDesign:ColorZone>
 
         <!-- Основной контент -->
-        <Frame Grid.Row="1" 
-               x:Name="MainFrame" 
-               NavigationUIVisibility="Hidden"/>
+        <Frame x:Name="MainFrame" Grid.Row="1" NavigationUIVisibility="Hidden"/>
         
         <!-- Приветственная страница -->
         <Grid Grid.Row="1" 
@@ -69,7 +119,7 @@
             </Grid.RowDefinitions>
 
             <!-- Центральный блок с изображением и текстом -->
-            <StackPanel Grid.Row="1" 
+            <!--<StackPanel Grid.Row="1" 
                         HorizontalAlignment="Center">
                 
                 <Border Width="300" 
@@ -102,7 +152,7 @@
                         FontSize="18"
                         Height="54"
                         Width="220"/>
-            </StackPanel>
+            </StackPanel>-->
         </Grid>
     </Grid>
 </Window>

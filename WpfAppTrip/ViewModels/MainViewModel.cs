@@ -13,6 +13,8 @@ namespace WpfAppTrip.ViewModels
         private readonly IDialogService _dialogService;
         private bool _isWelcomePageVisible = true;
 
+        public event Action NavigateToWelcomePage;
+
         public MainViewModel(
             INavigationService navigationService,
             AuthService authService,
@@ -103,6 +105,11 @@ namespace WpfAppTrip.ViewModels
             OnPropertyChanged(nameof(IsUserLoggedIn));
             OnPropertyChanged(nameof(IsAdmin));
             OnPropertyChanged(nameof(CurrentUserName));
+        }
+
+        public void ShowWelcomePage()
+        {
+            NavigateToWelcomePage?.Invoke();
         }
     }
 } 

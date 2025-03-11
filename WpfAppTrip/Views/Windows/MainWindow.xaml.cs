@@ -36,17 +36,17 @@ namespace WpfAppTrip.Views.Windows
             _navigationService = App.Container.Resolve<INavigationService>();
             DataContext = _viewModel;
 
-            // При первом запуске показываем страницу приветствия
-            if (MainFrame != null)
-            {
-                MainFrame.Navigate(new WelcomePage());
-            }
-            
-            // Обновляем все свойства
+            // Navigate to WelcomePage on startup
+            MainFrame.Navigate(new WelcomePage());
+
+            // Update all properties
             _viewModel.UpdateAllProperties();
 
-            // Регистрируем обработчик закрытия окна
+            // Register event handler for window close
             Closed += MainWindow_Closed;
+
+            // Subscribe to the event to navigate to the welcome page
+            _viewModel.NavigateToWelcomePage += OnNavigateToWelcomePage;
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
@@ -66,6 +66,11 @@ namespace WpfAppTrip.Views.Windows
             {
                 _viewModel.NavigateToSurveyCommand.Execute(null);
             }
+        }
+
+        private void OnNavigateToWelcomePage()
+        {
+            MainFrame.Navigate(new WelcomePage());
         }
 
         // Вспомогательный метод для получения MainFrame из других классов

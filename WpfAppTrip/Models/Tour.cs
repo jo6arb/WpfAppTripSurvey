@@ -10,6 +10,9 @@ namespace WpfAppTrip.Models
         public decimal Price { get; set; }
         public string ImagePath { get; set; }
         public int Duration { get; set; }
+        public string Season { get; set; }
+        public string Difficulty { get; set; }
+        public int MaxGroupSize { get; set; }
         
         // Навигационные свойства (заполняются отдельно)
         public List<TourCategory> Categories { get; set; }

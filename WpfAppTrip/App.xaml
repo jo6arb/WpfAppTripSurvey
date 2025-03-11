@@ -22,8 +22,8 @@
 
             <!-- Конвертеры -->
             <converters:BooleanToIntConverter x:Key="BooleanToIntConverter"/>
-            <converters:NullImageConverter x:Key="NullImageConverter"/>
             <converters:BooleanToMarginConverter x:Key="BooleanToMarginConverter"/>
+            <converters:NullImageConverter x:Key="NullImageConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

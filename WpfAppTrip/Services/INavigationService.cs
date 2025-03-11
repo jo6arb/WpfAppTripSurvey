@@ -46,6 +46,11 @@ namespace WpfAppTrip.Services
         void ShowLoginWindow();
         
         /// <summary>
+        /// Переходит к странице туров
+        /// </summary>
+        void NavigateToTours();
+        
+        /// <summary>
         /// Событие, возникающее при изменении навигации
         /// </summary>
         event EventHandler<NavigationEventArgs> Navigated;

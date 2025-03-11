@@ -1,0 +1,210 @@
+﻿<Page x:Class="WpfAppTrip.Views.Pages.Tours"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:vm="clr-namespace:WpfAppTrip.ViewModels"
+      xmlns:converters="clr-namespace:WpfAppTrip.Converters"
+      mc:Ignorable="d" 
+      d:DesignHeight="700" d:DesignWidth="1000"
+      Title="Сгенерированные туры">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+    </Page.Resources>
+
+    <Grid Margin="20">
+        <!-- Загрузка -->
+        <Grid x:Name="LoadingGrid" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Мы генерируем для Вас лучшие туры!"
+                      Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Grid.Row="0"
+                      Margin="0,0,0,20"/>
+
+            <Grid Grid.Row="1" Width="400" Height="200">
+                <!-- Облака слева -->
+                <materialDesign:PackIcon Kind="Cloud"
+                                       Width="48" Height="48"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Top"
+                                       Margin="0,20,0,0"
+                                       Opacity="0.7">
+                    <materialDesign:PackIcon.RenderTransform>
+                        <TranslateTransform x:Name="Cloud1Transform" X="0"/>
+                    </materialDesign:PackIcon.RenderTransform>
+                    <materialDesign:PackIcon.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                                <Storyboard RepeatBehavior="Forever">
+                                    <DoubleAnimation
+                                        Storyboard.TargetName="Cloud1Transform"
+                                        Storyboard.TargetProperty="X"
+                                        From="-50" To="450"
+                                        Duration="0:0:15"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </materialDesign:PackIcon.Triggers>
+                </materialDesign:PackIcon>
+
+                <!-- Облака справа -->
+                <materialDesign:PackIcon Kind="Cloud"
+                                       Width="48" Height="48"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Bottom"
+                                       Margin="0,0,0,20"
+                                       Opacity="0.7">
+                    <materialDesign:PackIcon.RenderTransform>
+                        <TranslateTransform x:Name="Cloud2Transform" X="0"/>
+                    </materialDesign:PackIcon.RenderTransform>
+                    <materialDesign:PackIcon.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                                <Storyboard RepeatBehavior="Forever">
+                                    <DoubleAnimation
+                                        Storyboard.TargetName="Cloud2Transform"
+                                        Storyboard.TargetProperty="X"
+                                        From="0" To="-450"
+                                        Duration="0:0:12"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </materialDesign:PackIcon.Triggers>
+                </materialDesign:PackIcon>
+
+                <!-- Самолетик -->
+                <materialDesign:PackIcon Kind="AirplaneTakeoff"
+                                       Width="64" Height="64"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
+                    <materialDesign:PackIcon.RenderTransform>
+                        <TransformGroup>
+                            <TranslateTransform x:Name="PlaneTransform" X="0" Y="0"/>
+                            <RotateTransform x:Name="PlaneRotation" Angle="0"/>
+                        </TransformGroup>
+                    </materialDesign:PackIcon.RenderTransform>
+                    <materialDesign:PackIcon.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                                <Storyboard RepeatBehavior="Forever">
+                                    <DoubleAnimationUsingKeyFrames
+                                        Storyboard.TargetName="PlaneTransform"
+                                        Storyboard.TargetProperty="X"
+                                        Duration="0:0:4">
+                                        <LinearDoubleKeyFrame Value="-200" KeyTime="0:0:0"/>
+                                        <LinearDoubleKeyFrame Value="200" KeyTime="0:0:2"/>
+                                        <LinearDoubleKeyFrame Value="-200" KeyTime="0:0:4"/>
+                                    </DoubleAnimationUsingKeyFrames>
+                                    <DoubleAnimationUsingKeyFrames
+                                        Storyboard.TargetName="PlaneTransform"
+                                        Storyboard.TargetProperty="Y"
+                                        Duration="0:0:4">
+                                        <LinearDoubleKeyFrame Value="0" KeyTime="0:0:0"/>
+                                        <LinearDoubleKeyFrame Value="-20" KeyTime="0:0:1"/>
+                                        <LinearDoubleKeyFrame Value="0" KeyTime="0:0:2"/>
+                                        <LinearDoubleKeyFrame Value="20" KeyTime="0:0:3"/>
+                                        <LinearDoubleKeyFrame Value="0" KeyTime="0:0:4"/>
+                                    </DoubleAnimationUsingKeyFrames>
+                                    <DoubleAnimationUsingKeyFrames
+                                        Storyboard.TargetName="PlaneRotation"
+                                        Storyboard.TargetProperty="Angle"
+                                        Duration="0:0:4">
+                                        <LinearDoubleKeyFrame Value="0" KeyTime="0:0:0"/>
+                                        <LinearDoubleKeyFrame Value="0" KeyTime="0:0:2"/>
+                                        <LinearDoubleKeyFrame Value="180" KeyTime="0:0:2.1"/>
+                                        <LinearDoubleKeyFrame Value="180" KeyTime="0:0:4"/>
+                                    </DoubleAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </materialDesign:PackIcon.Triggers>
+                </materialDesign:PackIcon>
+            </Grid>
+
+            <!-- Прогресс бар -->
+            <ProgressBar Grid.Row="2"
+                        Style="{StaticResource MaterialDesignCircularProgressBar}"
+                        Value="0"
+                        IsIndeterminate="True"
+                        Width="48"
+                        Height="48"
+                        Margin="0,20,0,0"/>
+        </Grid>
+
+        <!-- Контент с турами -->
+        <Grid x:Name="ContentGrid" 
+              Visibility="{Binding IsLoading, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Сгенерированные туры"
+                      Style="{StaticResource MaterialDesignHeadline4TextBlock}"
+                      Margin="0,0,0,20"/>
+
+            <ScrollViewer Grid.Row="1">
+                <ItemsControl ItemsSource="{Binding Tours}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <materialDesign:Card Margin="0,0,0,16" UniformCornerRadius="8">
+                                <Grid Height="200">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="300"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Изображение тура -->
+                                    <Image Source="{Binding ImagePath}"
+                                           Stretch="UniformToFill"/>
+
+                                    <!-- Информация о туре -->
+                                    <StackPanel Grid.Column="1" Margin="16">
+                                        <TextBlock Text="{Binding Name}"
+                                                   Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                                   Margin="0,0,0,8"/>
+                                        
+                                        <TextBlock Text="{Binding Description}"
+                                                   Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,0,0,16"/>
+                                        
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                            <TextBlock Text="Длительность: "
+                                                     Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                                            <TextBlock Text="{Binding Duration, StringFormat='{}{0} дней'}"
+                                                     Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                     FontWeight="Medium"/>
+                                        </StackPanel>
+
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                            <TextBlock Text="Сложность: "
+                                                     Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                                            <TextBlock Text="{Binding Difficulty}"
+                                                     Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                     FontWeight="Medium"/>
+                                        </StackPanel>
+                                        
+                                        <TextBlock Text="{Binding Price, StringFormat='{}{0:N0} руб.'}"
+                                                   Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                                   Foreground="{DynamicResource PrimaryHueDarkBrush}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </materialDesign:Card>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>

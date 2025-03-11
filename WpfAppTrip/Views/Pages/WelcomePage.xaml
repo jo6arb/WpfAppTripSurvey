@@ -13,59 +13,45 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
+            <!-- Logo column -->
             <ColumnDefinition Width="Auto"/>
+            <!-- Text and button column -->
             <ColumnDefinition Width="*"/>
+            <!-- Empty column -->
         </Grid.ColumnDefinitions>
-        
-        <!-- Левая декоративная панель (можно добавить фоновое изображение) -->
-        <Border Grid.Column="0" Background="#A1DCFB"/>
-        
-        <!-- Центральный блок с логотипом и авторизацией -->
-        <StackPanel Grid.Column="1" 
-                    VerticalAlignment="Center" 
-                    Margin="80,0">
-            <!-- Логотип и название -->
-            <Border Width="260" 
-                    Height="260" 
-                    CornerRadius="20"
-                    Background="#B3E5FC"
-                    Margin="0,0,0,20">
-                <Image Source="/Images/travel-logo.png" 
-                       Stretch="UniformToFill"
-                       Margin="20"/>
-            </Border>
 
-            <TextBlock Text="МаршрутМастер"
+        <!-- Левая панель с логотипом -->
+        <Border Grid.Column="0"  Background="#A1DCFB" Padding="20">
+        </Border>
+
+        <!-- Центральный блок с текстом и кнопкой -->
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="20">
+            <!-- Изображение -->
+            <Image            Stretch="Uniform" Source="/Images/logo.jpeg" Margin="0,0,0,20" Height="300"/>
+            <TextBlock Text="Добро пожаловать в МаршрутМастер!"
                        HorizontalAlignment="Center"
                        FontSize="36"
                        FontWeight="Medium"
-                       Margin="0,0,0,70"/>
+                       Margin="0,0,0,20"/>
 
-            <!-- Кнопки -->
-            <Button x:Name="LoginButton"
+            <TextBlock Text="Приветствуем вас! Пройдите наш быстрый опрос, чтобы мы могли подобрать идеальный вариант отдыха специально для вас."
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center"
+                       FontSize="18"
+                       Margin="0,0,0,40"/>
+
+            <Button x:Name="StartSurveyButton"
                     Height="54"
                     Width="300"
-                    Content="Войти"
+                    Content="Пройти опрос"
                     FontSize="20"
                     Background="White"
                     Foreground="#2196F3"
                     BorderThickness="0"
                     materialDesign:ButtonAssist.CornerRadius="4"
-                    Click="LoginButton_Click"
-                    Margin="0,0,0,30"/>
-
-            <Button x:Name="RegisterButton"
-                    Height="54"
-                    Width="300"
-                    Content="Зарегистрироваться"
-                    FontSize="20"
-                    Background="White"
-                    Foreground="#2196F3"
-                    BorderThickness="0"
-                    materialDesign:ButtonAssist.CornerRadius="4"
-                    Click="RegisterButton_Click"/>
+                    Click="StartSurveyButton_Click"/>
         </StackPanel>
-        
+
         <!-- Правая декоративная панель -->
         <Border Grid.Column="2" Background="#A1DCFB"/>
     </Grid>
