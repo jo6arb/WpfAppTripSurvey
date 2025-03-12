@@ -21,9 +21,6 @@
             <system:String x:Key="ConnectionString">Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=TourSurveyDB;Integrated Security=True</system:String>
 
             <!-- Конвертеры -->
-            <converters:BooleanToIntConverter x:Key="BooleanToIntConverter"/>
-            <converters:BooleanToMarginConverter x:Key="BooleanToMarginConverter"/>
-            <converters:NullImageConverter x:Key="NullImageConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

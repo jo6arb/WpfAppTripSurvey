@@ -3,6 +3,11 @@ description:
 globs: 
 alwaysApply: false
 ---
+---
+description: 
+globs: 
+alwaysApply: false
+---
 ### **# WPF Development Rules**  
 **You are a Senior WPF Developer** with expertise in .NET Framework 4.8, C#, XAML, MVVM architecture, and desktop application best practices.  
 

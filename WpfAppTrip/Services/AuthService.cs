@@ -16,6 +16,13 @@ namespace WpfAppTrip.Services
         private readonly Dbhelper _dbHelper;
         private User _currentUser;
 
+        public bool IsAuthenticated => CurrentUser != null;
+        public User CurrentUser
+        {
+            get => _currentUser;
+            private set => _currentUser = value;
+        }
+
         /// <summary>
         /// Инициализирует новый экземпляр класса AuthService с заданным помощником базы данных
         /// </summary>
@@ -50,11 +57,12 @@ namespace WpfAppTrip.Services
 
                 var parameters = new Dictionary<string, object>
                 {
-                    { "@Email", email }
+                    { "@Email", email },
+                    { "@Password", password }
                 };
 
                 var user = await _dbHelper.GetSingleAsync<User>(
-                    "SELECT UserID, Username, Email, Password, Role, COALESCE(RegistrationDate, GETDATE()) AS RegistrationDate FROM Users WHERE Email = @Email",
+                    "SELECT UserID, Username, Email, Password, Role, COALESCE(RegistrationDate, GETDATE()) AS RegistrationDate FROM Users WHERE Email = @Email AND Password = @Password",
                     reader => new User
                     {
                         UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
@@ -69,13 +77,6 @@ namespace WpfAppTrip.Services
                 if (user == null)
                 {
                     Debug.WriteLine("Пользователь не найден");
-                    return (false, "Неверный email или пароль");
-                }
-
-                // Простая проверка пароля без хеширования
-                if (password != user.Password)
-                {
-                    Debug.WriteLine("Неверный пароль");
                     return (false, "Неверный email или пароль");
                 }
 

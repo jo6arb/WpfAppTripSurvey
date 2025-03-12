@@ -22,4 +22,4 @@ namespace WpfAppTrip.Views.Pages
             }
         }
     }
-} 
+}

@@ -1,11 +1,16 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 using WpfAppTrip.Models;
 using WpfAppTrip.Services;
 using WpfAppTrip.Db;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Input;
+using WpfAppTrip.Commands;
+using System.ComponentModel;
 
 namespace WpfAppTrip.ViewModels
 {
@@ -13,9 +18,16 @@ namespace WpfAppTrip.ViewModels
     {
         private ObservableCollection<Tour> _tours;
         private readonly INavigationService _navigationService;
+        private readonly IDialogService _dialogService;
+        private readonly AuthService _authService;
         private readonly Dbhelper _db;
         private bool _isLoading;
+        private Tour _selectedTour;
+        private readonly Dictionary<int, bool> _selectedTours;
         
+        public ICommand SelectTourCommand { get; }
+        public ICommand BookTourCommand { get; }
+
         public ObservableCollection<Tour> Tours
         {
             get => _tours;
@@ -32,14 +44,95 @@ namespace WpfAppTrip.ViewModels
             }
         }
 
-        public ToursViewModel(INavigationService navigationService)
+        public Tour SelectedTour
+        {
+            get => _selectedTour;
+            set => SetProperty(ref _selectedTour, value);
+        }
+
+        public bool IsTourSelected(Tour tour)
+        {
+            return tour != null && _selectedTours.ContainsKey(tour.TourID) && _selectedTours[tour.TourID];
+        }
+
+        public ToursViewModel(INavigationService navigationService, IDialogService dialogService, AuthService authService)
         {
             Debug.WriteLine("ToursViewModel: Конструктор начал работу");
             _navigationService = navigationService;
+            _dialogService = dialogService;
+            _authService = authService;
             _db = new Dbhelper();
             Tours = new ObservableCollection<Tour>();
+            _selectedTours = new Dictionary<int, bool>();
+
+            SelectTourCommand = new RelayCommand(OnSelectTour);
+            BookTourCommand = new RelayCommand(OnBookTour);
+
             Debug.WriteLine("ToursViewModel: Вызываем LoadToursAsync");
             LoadToursAsync();
+
+            PropertyChanged += ToursViewModel_PropertyChanged;
+        }
+
+        private void ToursViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SelectedTour))
+            {
+                OnPropertyChanged(nameof(IsTourSelected));
+            }
+        }
+
+        private void OnSelectTour(object parameter)
+        {
+            if (parameter is Tour tour)
+            {
+                // Сбрасываем выделение у всех туров
+                foreach (var tourId in _selectedTours.Keys.ToList())
+                {
+                    _selectedTours[tourId] = false;
+                }
+                
+                // Выделяем выбранный тур
+                _selectedTours[tour.TourID] = true;
+                SelectedTour = tour;
+                
+                // Уведомляем об изменении для всех туров
+                OnPropertyChanged(nameof(IsTourSelected));
+            }
+        }
+
+        private async void OnBookTour(object parameter)
+        {
+            if (parameter is Tour tour)
+            {
+                if (!_authService.IsAuthenticated)
+                {
+                    _dialogService.ShowWarning("Для бронирования тура необходимо войти в систему");
+                    _navigationService.NavigateToPage("Login");
+                    return;
+                }
+
+                try
+                {
+                    string insertQuery = @"
+                        INSERT INTO Bookings (UserID, TourID, BookingDate, TravelDate, NumberOfPeople, TotalPrice, Status)
+                        VALUES (@UserID, @TourID, GETDATE(), DATEADD(month, 1, GETDATE()), 1, @Price, N'Ожидание')";
+
+                    var parameters = new Dictionary<string, object>
+                    {
+                        { "@UserID", _authService.CurrentUser.UserID },
+                        { "@TourID", tour.TourID },
+                        { "@Price", tour.Price }
+                    };
+
+                    await _db.ExecuteNonQueryAsync(insertQuery, parameters);
+                    _dialogService.ShowInfo("Тур успешно забронирован! Мы свяжемся с вами для уточнения деталей.");
+                }
+                catch (Exception ex)
+                {
+                    _dialogService.ShowError($"Ошибка при бронировании тура: {ex.Message}");
+                }
+            }
         }
 
         private async void LoadToursAsync()
