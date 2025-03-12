@@ -11,9 +11,9 @@ namespace WpfAppTrip.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is ToursViewModel viewModel && parameter is Tour tour)
+            if (value is TourViewModel viewModel && parameter is Tour tour)
             {
-                return viewModel.IsTourSelected(tour) ? Visibility.Visible : Visibility.Collapsed;
+                return viewModel.IsSelected ? Visibility.Visible : Visibility.Collapsed;
             }
             return Visibility.Collapsed;
         }

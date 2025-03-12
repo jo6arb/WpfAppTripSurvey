@@ -10,25 +10,23 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using WpfAppTrip.Commands;
-using System.ComponentModel;
 
 namespace WpfAppTrip.ViewModels
 {
     public class ToursViewModel : BaseViewModel
     {
-        private ObservableCollection<Tour> _tours;
+        private ObservableCollection<TourViewModel> _tours;
         private readonly INavigationService _navigationService;
         private readonly IDialogService _dialogService;
         private readonly AuthService _authService;
         private readonly Dbhelper _db;
         private bool _isLoading;
-        private Tour _selectedTour;
-        private readonly Dictionary<int, bool> _selectedTours;
+        private TourViewModel _selectedTour;
         
         public ICommand SelectTourCommand { get; }
         public ICommand BookTourCommand { get; }
 
-        public ObservableCollection<Tour> Tours
+        public ObservableCollection<TourViewModel> Tours
         {
             get => _tours;
             set => SetProperty(ref _tours, value);
@@ -44,15 +42,10 @@ namespace WpfAppTrip.ViewModels
             }
         }
 
-        public Tour SelectedTour
+        public TourViewModel SelectedTour
         {
             get => _selectedTour;
             set => SetProperty(ref _selectedTour, value);
-        }
-
-        public bool IsTourSelected(Tour tour)
-        {
-            return tour != null && _selectedTours.ContainsKey(tour.TourID) && _selectedTours[tour.TourID];
         }
 
         public ToursViewModel(INavigationService navigationService, IDialogService dialogService, AuthService authService)
@@ -62,49 +55,36 @@ namespace WpfAppTrip.ViewModels
             _dialogService = dialogService;
             _authService = authService;
             _db = new Dbhelper();
-            Tours = new ObservableCollection<Tour>();
-            _selectedTours = new Dictionary<int, bool>();
+            Tours = new ObservableCollection<TourViewModel>();
 
             SelectTourCommand = new RelayCommand(OnSelectTour);
             BookTourCommand = new RelayCommand(OnBookTour);
 
             Debug.WriteLine("ToursViewModel: Вызываем LoadToursAsync");
             LoadToursAsync();
-
-            PropertyChanged += ToursViewModel_PropertyChanged;
-        }
-
-        private void ToursViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(SelectedTour))
-            {
-                OnPropertyChanged(nameof(IsTourSelected));
-            }
         }
 
         private void OnSelectTour(object parameter)
         {
-            if (parameter is Tour tour)
+            if (parameter is TourViewModel tour)
             {
                 // Сбрасываем выделение у всех туров
-                foreach (var tourId in _selectedTours.Keys.ToList())
+                foreach (var t in Tours)
                 {
-                    _selectedTours[tourId] = false;
+                    t.IsSelected = false;
                 }
                 
                 // Выделяем выбранный тур
-                _selectedTours[tour.TourID] = true;
+                tour.IsSelected = true;
                 SelectedTour = tour;
-                
-                // Уведомляем об изменении для всех туров
-                OnPropertyChanged(nameof(IsTourSelected));
             }
         }
 
         private async void OnBookTour(object parameter)
         {
-            if (parameter is Tour tour)
+            if (parameter is TourViewModel tourVm)
             {
+                var tour = tourVm.Tour;
                 if (!_authService.IsAuthenticated)
                 {
                     _dialogService.ShowWarning("Для бронирования тура необходимо войти в систему");
@@ -193,7 +173,7 @@ namespace WpfAppTrip.ViewModels
                         {
                             foreach (var tour in tours)
                             {
-                                Tours.Add(tour);
+                                Tours.Add(new TourViewModel(tour));
                                 Debug.WriteLine($"LoadToursAsync: Добавлен тур в коллекцию: {tour.Name}");
                             }
                         }

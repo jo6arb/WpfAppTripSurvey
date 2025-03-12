@@ -103,6 +103,7 @@
     <Compile Include="Models\UserAnswer.cs" />
     <!-- ViewModels -->
     <Compile Include="ViewModels\BaseViewModel.cs" />
+    <Compile Include="ViewModels\INavigationAware.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\RegisterViewModel.cs" />
@@ -156,6 +157,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Compile Include="ViewModels\TourViewModel.cs" />
     <!-- Views -->
     <Compile Include="Views\Controls\WelcomeControl.xaml.cs">
       <DependentUpon>WelcomeControl.xaml</DependentUpon>
