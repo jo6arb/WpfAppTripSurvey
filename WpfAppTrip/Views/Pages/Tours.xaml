@@ -10,12 +10,17 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="Tours">
 
+    <Page.Resources>
+        <!-- Розовый цвет для кнопки -->
+        <SolidColorBrush x:Key="PinkButtonBrush" Color="#E91E63"/>
+    </Page.Resources>
+
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding Tours}" Margin="20">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <materialDesign:Card Margin="0,0,0,20" UniformCornerRadius="15">
+                        <materialDesign:Card Margin="10" UniformCornerRadius="15" Width="350" Height="550">
                             <Grid>
                                 <Button Command="{Binding DataContext.SelectTourCommand, 
                                         RelativeSource={RelativeSource AncestorType=ItemsControl}}"
@@ -26,18 +31,18 @@
                                 
                                 <Grid>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="250"/>
-                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="200"/>
+                                        <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
 
                                     <Image Source="{Binding ImagePath}" 
                                            Stretch="UniformToFill" 
-                                           Height="250"/>
+                                           Height="200"/>
 
                                     <Grid Grid.Row="1" Margin="16">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
@@ -45,35 +50,45 @@
                                         <TextBlock Grid.Row="0" 
                                                    Text="{Binding Name}" 
                                                    Style="{StaticResource MaterialDesignHeadline6TextBlock}"
-                                                   Margin="0,0,0,8"/>
+                                                   Margin="0,0,0,8"
+                                                   TextWrapping="Wrap"/>
 
                                         <TextBlock Grid.Row="1" 
                                                    Text="{Binding Description}" 
                                                    TextWrapping="Wrap"
                                                    Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                                   Margin="0,0,0,16"/>
+                                                   Margin="0,0,0,16"
+                                                   MaxHeight="120"
+                                                   TextTrimming="CharacterEllipsis"/>
 
                                         <StackPanel Grid.Row="2" 
-                                                    Orientation="Horizontal" 
+                                                    Orientation="Vertical" 
                                                     Margin="0,0,0,16">
-                                            <TextBlock Text="Длительность: " 
-                                                       Style="{StaticResource MaterialDesignBody2TextBlock}"/>
-                                            <TextBlock Text="{Binding Duration}" 
-                                                       Style="{StaticResource MaterialDesignBody2TextBlock}"/>
-                                            <TextBlock Text=" дней" 
-                                                       Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Длительность: " 
+                                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                           FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Duration}" 
+                                                           Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                                                <TextBlock Text=" дней" 
+                                                           Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                                            </StackPanel>
                                             
-                                            <TextBlock Text=" | Сложность: " 
-                                                       Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                                       Margin="16,0,0,0"/>
-                                            <TextBlock Text="{Binding Difficulty}" 
-                                                       Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                <TextBlock Text="Сложность: " 
+                                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                           FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Difficulty}" 
+                                                           Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                                            </StackPanel>
                                             
-                                            <TextBlock Text=" | Сезон: " 
-                                                       Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                                       Margin="16,0,0,0"/>
-                                            <TextBlock Text="{Binding Season}" 
-                                                       Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                <TextBlock Text="Сезон: " 
+                                                           Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                                           FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Season}" 
+                                                           Style="{StaticResource MaterialDesignBody2TextBlock}"/>
+                                            </StackPanel>
                                         </StackPanel>
 
                                         <Grid Grid.Row="3">
@@ -90,11 +105,13 @@
                                             </StackPanel>
 
                                             <Button Grid.Column="1"
-                                                    Content="Забронировать сейчас"
+                                                    Content="Забронировать"
                                                     Command="{Binding DataContext.BookTourCommand, 
                                                              RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                     CommandParameter="{Binding}"
-                                                    Style="{StaticResource MaterialDesignFlatSecondaryButton}"
+                                                    Background="{StaticResource PinkButtonBrush}"
+                                                    Foreground="White"
+                                                    Style="{StaticResource MaterialDesignRaisedButton}"
                                                     Visibility="{Binding IsSelected, 
                                                               Converter={StaticResource BooleanToVisibilityConverter}}"/>
                                         </Grid>
@@ -106,7 +123,7 @@
                                 <Style TargetType="materialDesign:Card">
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{StaticResource PinkButtonBrush}"/>
                                             <Setter Property="BorderThickness" Value="2"/>
                                             <Setter Property="materialDesign:ElevationAssist.Elevation" Value="Dp8"/>
                                         </DataTrigger>
@@ -119,7 +136,7 @@
 
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel/>
+                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>

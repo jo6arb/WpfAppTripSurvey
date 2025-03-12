@@ -13,6 +13,7 @@ namespace WpfAppTrip.Models
         public string Season { get; set; }
         public string Difficulty { get; set; }
         public int MaxGroupSize { get; set; }
+        public string Destination { get; set; }
         
         // Навигационные свойства (заполняются отдельно)
         public List<TourCategory> Categories { get; set; }

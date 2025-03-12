@@ -80,7 +80,7 @@ namespace WpfAppTrip.ViewModels
             }
         }
 
-        private async void OnBookTour(object parameter)
+        private void OnBookTour(object parameter)
         {
             if (parameter is TourViewModel tourVm)
             {
@@ -92,27 +92,52 @@ namespace WpfAppTrip.ViewModels
                     return;
                 }
 
-                try
-                {
-                    string insertQuery = @"
-                        INSERT INTO Bookings (UserID, TourID, BookingDate, TravelDate, NumberOfPeople, TotalPrice, Status)
-                        VALUES (@UserID, @TourID, GETDATE(), DATEADD(month, 1, GETDATE()), 1, @Price, N'Ожидание')";
+                // Получаем страну назначения из названия тура
+                string destination = ExtractDestination(tour.Name);
+                Debug.WriteLine($"Выбрана страна назначения: {destination}");
+                
+                // Устанавливаем страну назначения в тур перед передачей
+                tour.Destination = destination;
 
-                    var parameters = new Dictionary<string, object>
-                    {
-                        { "@UserID", _authService.CurrentUser.UserID },
-                        { "@TourID", tour.TourID },
-                        { "@Price", tour.Price }
-                    };
-
-                    await _db.ExecuteNonQueryAsync(insertQuery, parameters);
-                    _dialogService.ShowInfo("Тур успешно забронирован! Мы свяжемся с вами для уточнения деталей.");
-                }
-                catch (Exception ex)
-                {
-                    _dialogService.ShowError($"Ошибка при бронировании тура: {ex.Message}");
-                }
+                // Переходим на страницу бронирования билетов
+                _navigationService.NavigateToTickets(tour);
             }
+        }
+
+        // Метод для извлечения страны назначения из названия тура
+        private string ExtractDestination(string tourName)
+        {
+            // Пытаемся извлечь страну из названия тура
+            // Предполагаем, что название тура имеет формат "Тур в [Страну]" или содержит страну
+            string[] parts = tourName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            
+            // Берем последнее слово как страну назначения
+            string destination = parts.Length > 0 ? parts[parts.Length - 1] : "Пхукет";
+            
+            // Если название заканчивается на "у", "ю", "и" и т.д., преобразуем в именительный падеж
+            if (destination.EndsWith("у") || destination.EndsWith("ю") || 
+                destination.EndsWith("е") || destination.EndsWith("и"))
+            {
+                // Простое преобразование для некоторых стран
+                if (destination.Equals("Турцию", StringComparison.OrdinalIgnoreCase))
+                    return "Турция";
+                if (destination.Equals("Италию", StringComparison.OrdinalIgnoreCase))
+                    return "Италия";
+                if (destination.Equals("Францию", StringComparison.OrdinalIgnoreCase))
+                    return "Франция";
+                if (destination.Equals("Испанию", StringComparison.OrdinalIgnoreCase))
+                    return "Испания";
+                if (destination.Equals("Грецию", StringComparison.OrdinalIgnoreCase))
+                    return "Греция";
+                if (destination.Equals("Таиланд", StringComparison.OrdinalIgnoreCase) || 
+                    destination.Equals("Таиланде", StringComparison.OrdinalIgnoreCase))
+                    return "Пхукет";
+                
+                // Удаляем последнюю букву для простого преобразования
+                destination = destination.Substring(0, destination.Length - 1);
+            }
+            
+            return destination;
         }
 
         private async void LoadToursAsync()

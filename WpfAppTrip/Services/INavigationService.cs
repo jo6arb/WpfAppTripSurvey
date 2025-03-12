@@ -51,6 +51,18 @@ namespace WpfAppTrip.Services
         void NavigateToTours();
         
         /// <summary>
+        /// Переходит к странице бронирования билетов
+        /// </summary>
+        /// <param name="tour">Выбранный тур для бронирования</param>
+        void NavigateToTickets(Models.Tour tour);
+        
+        /// <summary>
+        /// Получает главный фрейм приложения
+        /// </summary>
+        /// <returns>Главный фрейм приложения</returns>
+        System.Windows.Controls.Frame GetMainFrame();
+        
+        /// <summary>
         /// Событие, возникающее при изменении навигации
         /// </summary>
         event EventHandler<NavigationEventArgs> Navigated;

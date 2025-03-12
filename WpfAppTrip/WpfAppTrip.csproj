@@ -121,6 +121,8 @@
     <Compile Include="Commands\RelayCommand.cs" />
     <!-- Helpers -->
     <Compile Include="Helpers\ImagePathHelper.cs" />
+    <Compile Include="ViewModels\TicketBuyViewModel.cs" />
+    <Compile Include="ViewModels\TicketsViewModel.cs" />
     <Compile Include="ViewModels\ToursViewModel.cs" />
     <Page Include="Views\Controls\WelcomeControl.xaml">
       <SubType>Designer</SubType>
@@ -147,6 +149,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\SurveyPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\TicketBuy.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\Tickets.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -188,6 +198,12 @@
     </Compile>
     <Compile Include="Views\Pages\SurveyPage.xaml.cs">
       <DependentUpon>SurveyPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\TicketBuy.xaml.cs">
+      <DependentUpon>TicketBuy.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\Tickets.xaml.cs">
+      <DependentUpon>Tickets.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\Tours.xaml.cs">
       <DependentUpon>Tours.xaml</DependentUpon>

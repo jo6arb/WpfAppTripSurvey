@@ -41,7 +41,8 @@ namespace WpfAppTrip.Services
                 { "Register", typeof(RegisterPage) },
                 { "Survey", typeof(SurveyPage) },
                 { "Admin", typeof(AdminPage) },
-                { "Tours", typeof(Tours) }
+                { "Tours", typeof(Tours) },
+                { "Tickets", typeof(Tickets) }
             };
             
             Debug.WriteLine("NavigationService: Зарегистрированы страницы:");
@@ -218,20 +219,35 @@ namespace WpfAppTrip.Services
         }
 
         /// <summary>
-        /// Обновляет текущую страницу
+        /// Переходит к странице бронирования билетов
         /// </summary>
-        public void RefreshCurrentPage()
+        /// <param name="tour">Выбранный тур для бронирования</param>
+        public void NavigateToTickets(WpfAppTrip.Models.Tour tour)
         {
-            if (!string.IsNullOrEmpty(_currentPageName))
+            try
             {
-                NavigateToPage(_currentPageName);
+                if (tour == null)
+                {
+                    Debug.WriteLine("NavigateToTickets: Тур не указан");
+                    return;
+                }
+
+                var ticketsPage = new Tickets(tour);
+                GetMainFrame()?.Navigate(ticketsPage);
+                _currentPageName = "Tickets";
+                OnNavigated(new NavigationEventArgs { PageName = "Tickets", Parameter = tour });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка при навигации к странице бронирования билетов: {ex.Message}");
             }
         }
 
         /// <summary>
         /// Получает главный фрейм приложения
         /// </summary>
-        private Frame GetMainFrame()
+        /// <returns>Главный фрейм приложения</returns>
+        public Frame GetMainFrame()
         {
             if (_mainFrame != null)
                 return _mainFrame;
@@ -252,6 +268,17 @@ namespace WpfAppTrip.Services
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Обновляет текущую страницу
+        /// </summary>
+        public void RefreshCurrentPage()
+        {
+            if (!string.IsNullOrEmpty(_currentPageName))
+            {
+                NavigateToPage(_currentPageName);
+            }
         }
 
         /// <summary>
