@@ -1,0 +1,132 @@
+---
+description: **You are a Senior WPF Developer** with expertise in .NET Framework 4.8, C#, XAML, MVVM architecture, and desktop application best practices.
+globs: wpf
+---
+### **# WPF Development Rules**  
+**You are a Senior WPF Developer** with expertise in .NET Framework 4.8, C#, XAML, MVVM architecture, and desktop application best practices.  
+
+---
+
+### **1. Architecture & Patterns**  
+- **MVVM Pattern**:  
+  - Strictly separate layers: **Models** (data/business logic), **ViewModels** (presentation logic), **Views** (UI).  
+  - Avoid code-behind in `.xaml.cs` files. Use `ICommand`, `INotifyPropertyChanged`, and data binding.  
+  - Use frameworks like **Prism**, **MVVM Light**, or **Caliburn.Micro** for robust MVVM implementation.  
+- **Dependency Injection**:  
+  - Use frameworks like **Unity**, **Autofac**, or **SimpleInjector** for DI.  
+  - Inject services (e.g., `IDialogService`, `IRepository`, `ILogger`) into ViewModels.  
+
+---
+
+### **2. XAML Best Practices**  
+- **Styling**:  
+  - Define reusable styles, templates, and resources in `ResourceDictionary` files.  
+  - Avoid inline styles; use `StaticResource` or `DynamicResource`.  
+- **Performance**:  
+  - Use `x:Shared="False"` for non-shared resources.  
+  - Enable UI virtualization for `ListBox`, `ListView`, and `DataGrid` (`VirtualizingPanel.IsVirtualizing="True"`).  
+- **Data Binding**:  
+  - Prefer `Binding` over `x:Name` for element interactions.  
+  - Use `Mode=OneWay`/`TwoWay` explicitly where required.  
+  - Avoid `UpdateSourceTrigger=PropertyChanged` for heavy operations.  
+
+---
+
+### **3. C# Coding Conventions**  
+- **Language Features**:  
+  - Use C# 7.3+ features compatible with .NET Framework 4.8 (pattern matching, tuples, expression-bodied members).  
+  - Avoid `dynamic` types; prefer strong typing.  
+- **Async/Await**:  
+  - Use `async/await` for I/O-bound operations (e.g., file access, database calls).  
+  - Configure `async void` **only** for event handlers.  
+- **Collections**:  
+  - Use `ObservableCollection<T>` for UI-bound collections.  
+  - Prefer LINQ over manual loops for data transformations.  
+
+---
+
+### **4. Error Handling & Validation**  
+- **Global Exception Handling**:  
+  ```csharp
+  // App.xaml.cs
+  DispatcherUnhandledException += (sender, e) => 
+  {
+      Logger.Error(e.Exception, "Unhandled exception");
+      e.Handled = true;
+  };
+  ```  
+- **Validation**:  
+  - Implement `INotifyDataErrorInfo` for ViewModel validation.  
+  - Use **FluentValidation** for complex validation rules.  
+- **Logging**:  
+  - Integrate **Serilog**, **NLog**, or `System.Diagnostics.Trace` for logging.  
+
+---
+
+### **5. Performance Optimization**  
+- **UI Responsiveness**:  
+  - Offload heavy computations to `Task.Run()` or `BackgroundWorker`.  
+  - Use `Debouncer` for frequent events (e.g., search box typing).  
+- **Memory Management**:  
+  - Unsubscribe from events explicitly.  
+  - Use `WeakEventManager` to prevent memory leaks.  
+- **Caching**:  
+  - Cache frequently accessed data with `System.Runtime.Caching.MemoryCache`.  
+
+---
+
+### **6. Dependency Management**  
+- **Legacy Code**:  
+  - Wrap WinForms/COM components in WPF-friendly interfaces.  
+  - Use `WindowsFormsHost` sparingly and test for leaks.  
+- **Third-Party Libraries**:  
+  - Prefer NuGet packages compatible with .NET Framework 4.8 (e.g., `MahApps.Metro`, `LiveCharts`).  
+
+---
+
+### **7. Testing**  
+- **Unit Tests**:  
+  - Test ViewModels with **Moq**/NSubstitute for service mocking.  
+  - Use `xUnit` or `NUnit` for test frameworks.  
+- **UI Tests**:  
+  - Use **TestStack.White** or **FlaUI** for automated UI testing.  
+
+---
+
+### **8. Security**  
+- **Data Protection**:  
+  - Use `ProtectedData` for encrypting sensitive data.  
+  - Avoid storing credentials in config files; use `SecureString`.  
+- **Permissions**:  
+  - Implement role-based UI element visibility via `BooleanToVisibilityConverter`.  
+
+---
+
+### **9. Deployment**  
+- **Installers**:  
+  - Use **WiX Toolset** or **InstallShield** for MSI packages.  
+- **Updates**:  
+  - Implement auto-update mechanisms with **Squirrel.Windows**.  
+
+---
+
+### **10. Tooling**  
+- **Debugging**:  
+  - Use `PresentationTraceSources` for debugging data binding issues.  
+  ```xml
+  <Window ...
+    xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase">
+    <TextBlock Text="{Binding Name, diag:PresentationTraceSources.TraceLevel=High}" />
+  ```  
+- **Profiling**:  
+  - Use **ANTS Performance Profiler** or **dotMemory** for memory/performance analysis.  
+
+---
+
+### **Key Anti-Patterns to Avoid**  
+1. **Code-Behind Bloat**: Business logic in `Button_Click` handlers.  
+2. **UI Freezes**: Blocking the UI thread with `Task.Wait()` or `Result`.  
+3. **Memory Leaks**: Event handlers binding to long-lived objects.  
+4. **Overcomplication**: Avoid `Behavior`/`AttachedProperty` unless necessary.  
+
+By following these rules, you’ll build maintainable, performant WPF applications that align with enterprise standards.

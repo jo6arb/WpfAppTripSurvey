@@ -2,14 +2,18 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:local="clr-namespace:WpfAppTrip" xmlns:system="clr-namespace:System;assembly=mscorlib"
-             StartupUri="Views\Windows\LoginWindow.xaml">
+             xmlns:converters="clr-namespace:WpfAppTrip.Converters"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             StartupUri="Views\Windows\MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
 
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBlock.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Color x:Key="ButtonTextColor">#43555C</Color>
@@ -17,7 +21,9 @@
 
             <!-- Material Design Settings -->
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-            <system:String x:Key="ConnectionString">Server=(localdb)\MSSQLLocalDB;Database=TourSurveyDB;Trusted_Connection=True;</system:String>
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
+            <converters:ImagePathConverter x:Key="ImagePathConverter" />
+            <system:String x:Key="ConnectionString">Data Source=(local);Initial Catalog=TourSurveyDB;Integrated Security=True</system:String>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

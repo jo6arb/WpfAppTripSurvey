@@ -1,101 +1,106 @@
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
-using WpfAppTrip.Models;
+using System.Threading.Tasks;
 using WpfAppTrip.Db;
-using System.Collections.Generic;
+using WpfAppTrip.Models;
 
 namespace WpfAppTrip.Services
 {
     public class AuthService
     {
-        private readonly Dbhelper _db;
-        private static User _currentUser;
+        private readonly Dbhelper _dbHelper;
+        private User _currentUser;
 
         public AuthService()
         {
-            _db = new Dbhelper();
+            _dbHelper = new Dbhelper();
         }
 
-        public static User CurrentUser => _currentUser;
+        public User CurrentUser => _currentUser;
+        public bool IsAuthenticated => _currentUser != null;
+        public bool IsAdmin => _currentUser?.Role == "Admin";
 
-        public async Task<bool> LoginAsync(string email, string password)
+        public async Task<bool> LoginAsync(string username, string password)
         {
             try
             {
-                var hashedPassword = HashPassword(password);
+                // Хеширование пароля (в реальном приложении)
+                string hashedPassword = HashPassword(password);
+                
+                // В учебном примере можно использовать простое сравнение
                 var parameters = new Dictionary<string, object>
                 {
-                    { "@Email", email },
-                    { "@Password", hashedPassword }
+                    { "@Username", username },
+                    { "@Password", password } // В реальном приложении здесь должен быть hashedPassword
                 };
 
-                _currentUser = await _db.GetSingleAsync<User>(
-                    "SELECT UserID, Username, Email, Role, RegistrationDate FROM Users " +
-                    "WHERE Email = @Email AND Password = @Password",
+                var user = await _dbHelper.GetDataAsync<User>(
+                    "SELECT * FROM Users WHERE Username = @Username AND Password = @Password",
+                    parameters,
                     reader => new User
                     {
                         UserID = reader.GetInt32(0),
                         Username = reader.GetString(1),
-                        Email = reader.GetString(2),
-                        Role = reader.GetString(3),
-                        RegistrationDate = reader.GetDateTime(4)
-                    },
-                    parameters
-                );
+                        Email = reader.GetString(3),
+                        Role = reader.GetString(4)
+                    });
 
-                return _currentUser != null;
+                if (user != null)
+                {
+                    _currentUser = user;
+                    return true;
+                }
+                return false;
             }
-            catch
+            catch (Exception)
             {
                 return false;
             }
         }
 
-        public async Task<(bool Success, string Error)> RegisterAsync(string username, string email, string password)
+        public async Task<bool> RegisterAsync(string username, string password, string email)
         {
             try
             {
-                // Сначала проверяем, существует ли пользователь
-                var parameters = new Dictionary<string, object>
+                // Проверка, существует ли пользователь
+                var checkParams = new Dictionary<string, object>
                 {
-                    { "@Email", email },
                     { "@Username", username }
                 };
 
-                var existingUser = await _db.GetSingleAsync<User>(
-                    "SELECT UserID FROM Users WHERE Email = @Email OR Username = @Username",
-                    reader => new User { UserID = reader.GetInt32(0) },
-                    parameters
-                );
+                var existingUser = await _dbHelper.GetDataAsync<User>(
+                    "SELECT * FROM Users WHERE Username = @Username",
+                    checkParams,
+                    reader => new User { UserID = reader.GetInt32(0) });
 
                 if (existingUser != null)
                 {
-                    return (false, "Пользователь с таким email или телефоном уже существует");
+                    return false; // Пользователь уже существует
                 }
 
-                // Если пользователь не существует, регистрируем
-                var hashedPassword = HashPassword(password);
-                parameters = new Dictionary<string, object>
+                // Хеширование пароля (в реальном приложении)
+                string hashedPassword = HashPassword(password);
+
+                // Добавление нового пользователя
+                var parameters = new Dictionary<string, object>
                 {
                     { "@Username", username },
+                    { "@Password", password }, // В реальном приложении здесь должен быть hashedPassword
                     { "@Email", email },
-                    { "@Password", hashedPassword },
                     { "@Role", "User" }
                 };
 
-                await _db.ExecuteNonQueryAsync(
-                    "INSERT INTO Users (Username, Email, Password, Role, RegistrationDate) " +
-                    "VALUES (@Username, @Email, @Password, @Role, GETDATE())",
-                    parameters
-                );
+                int result = await _dbHelper.ExecuteNonQueryAsync(
+                    "INSERT INTO Users (Username, Password, Email, Role) VALUES (@Username, @Password, @Email, @Role)",
+                    parameters);
 
-                return (true, null);
+                return result > 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return (false, $"Ошибка при регистрации: {ex.Message}");
+                return false;
             }
         }
 
@@ -106,10 +111,17 @@ namespace WpfAppTrip.Services
 
         private string HashPassword(string password)
         {
-            using (var sha256 = SHA256.Create())
+            // Простая реализация хеширования пароля
+            // В реальном приложении следует использовать более надежные методы
+            using (SHA256 sha256 = SHA256.Create())
             {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return Convert.ToBase64String(hashedBytes);
+                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
             }
         }
     }

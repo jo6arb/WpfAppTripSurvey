@@ -224,5 +224,62 @@ namespace WpfAppTrip.Db
                 await command.ExecuteNonQueryAsync();
             }
         }
+
+        // Метод для получения одной записи из базы данных
+        public async Task<T> GetDataAsync<T>(string query, Dictionary<string, object> parameters, Func<SqlDataReader, T> mapper)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand(query, connection))
+                {
+                    if (parameters != null)
+                    {
+                        foreach (var param in parameters)
+                        {
+                            command.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
+                        }
+                    }
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            return mapper(reader);
+                        }
+                    }
+                }
+            }
+            return default(T);
+        }
+
+        // Метод для получения списка записей из базы данных
+        public async Task<List<T>> GetDataListAsync<T>(string query, Func<SqlDataReader, T> mapper, Dictionary<string, object> parameters = null)
+        {
+            var result = new List<T>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand(query, connection))
+                {
+                    if (parameters != null)
+                    {
+                        foreach (var param in parameters)
+                        {
+                            command.Parameters.AddWithValue(param.Key, param.Value ?? DBNull.Value);
+                        }
+                    }
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            result.Add(mapper(reader));
+                        }
+                    }
+                }
+            }
+            return result;
+        }
     }
 }

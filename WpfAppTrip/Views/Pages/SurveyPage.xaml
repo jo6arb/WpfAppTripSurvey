@@ -4,14 +4,196 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:local="clr-namespace:WpfAppTrip.Views.Pages"
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="1000"
-      Title="Опрос">
+      Title="Опрос"
+      Background="#E3F2FD">
 
-    <Grid>
-        <TextBlock Text="Страница опроса в разработке"
-                  HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
-                  Style="{StaticResource MaterialDesignHeadline5TextBlock}"/>
+    <Page.Resources>
+        <sys:String x:Key="PercentSymbol">%</sys:String>
+    </Page.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Прогресс бар и номер вопроса -->
+        <Grid Grid.Row="0" Margin="0,0,0,30">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Номер текущего вопроса -->
+            <TextBlock Grid.Column="0"
+                       Text="{Binding CurrentQuestionNumber, StringFormat='Вопрос {0} из 10'}"
+                       Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                       Foreground="#2196F3"
+                       VerticalAlignment="Center"/>
+
+            <!-- Прогресс бар с иконкой -->
+            <Grid Grid.Column="1" Margin="20,0">
+                <ProgressBar Value="{Binding Progress}"
+                           Maximum="100"
+                           Height="4"
+                           Background="#B3E5FC"
+                           Foreground="#2196F3"/>
+                
+                <!-- Иконка прогресса -->
+                <Image Source="/Images/progress.ico" 
+                       Height="24" 
+                       HorizontalAlignment="Left"
+                       Margin="{Binding ProgressIconMargin}"/>
+            </Grid>
+
+            <!-- Счетчик прогресса в процентах -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Progress, StringFormat='{0:0}'}"
+                         Style="{StaticResource MaterialDesignBody2TextBlock}"
+                         Foreground="#2196F3"/>
+                <TextBlock Text="{StaticResource PercentSymbol}"
+                         Style="{StaticResource MaterialDesignBody2TextBlock}"
+                         Foreground="#2196F3"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Основной контент вопроса -->
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Текст вопроса -->
+            <TextBlock Grid.Row="0"
+                      Text="{Binding CurrentQuestion.QuestionText}"
+                      Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                      TextWrapping="Wrap"
+                      TextAlignment="Center"
+                      Margin="0,0,0,30"/>
+
+            <!-- Варианты ответов -->
+            <ScrollViewer Grid.Row="1" 
+                         VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Варианты с картинками -->
+                    <ItemsControl Grid.Row="0" ItemsSource="{Binding CurrentQuestion.Options}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel HorizontalAlignment="Center"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasImage}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                        
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Width="300" 
+                                        Height="200"
+                                        Margin="10"
+                                        CornerRadius="10"
+                                        Background="White"
+                                        BorderBrush="#2196F3"
+                                        BorderThickness="2"
+                                        Cursor="Hand"
+                                        MouseLeftButtonDown="Border_MouseLeftButtonDown">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Background" Value="#B3E5FC"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Изображение варианта -->
+                                        <Image Grid.Row="0"
+                                               Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
+                                               Stretch="UniformToFill"/>
+
+                                        <!-- Текст варианта -->
+                                        <TextBlock Grid.Row="1"
+                                                  Text="{Binding OptionText}"
+                                                  Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                                  TextAlignment="Center"
+                                                  Padding="10"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    
+                    <!-- Текстовые варианты -->
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding CurrentQuestion.Options}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel HorizontalAlignment="Center"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasImage}" Value="False">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                        
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <RadioButton Content="{Binding OptionText}"
+                                           IsChecked="{Binding IsSelected}"
+                                           Style="{StaticResource MaterialDesignChoiceChipPrimaryOutlineRadioButton}"
+                                           Margin="10"
+                                           HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Кнопка "Далее" -->
+        <Button Grid.Row="2"
+                Content="Далее"
+                Command="{Binding NextQuestionCommand}"
+                Style="{StaticResource MaterialDesignFlatButton}"
+                Height="50"
+                Width="200"
+                Margin="0,20,0,0"
+                FontSize="18"
+                Background="White"
+                Foreground="#2196F3"
+                materialDesign:ButtonAssist.CornerRadius="25"/>
     </Grid>
 </Page> 

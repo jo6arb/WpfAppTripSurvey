@@ -7,18 +7,18 @@ namespace WpfAppTrip.Helpers
     {
         private static readonly string BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         
-        public static string GetAnswerImagePath(int questionId, int optionNumber)
+        /// <summary>
+        /// Получает полный путь к изображению ответа по относительному пути из БД
+        /// </summary>
+        public static string GetFullImagePath(string relativePath)
         {
-            return GetRelativePath($"Images/Answers/Question{questionId}/{optionNumber}.jpg");
+            if (string.IsNullOrEmpty(relativePath)) return null;
+            return Path.Combine(BaseDirectory, relativePath);
         }
-
-        private static string GetRelativePath(string relativePath)
-        {
-            // Преобразуем путь в относительный от исполняемого файла
-            string fullPath = Path.Combine(BaseDirectory, relativePath);
-            return fullPath;
-        }
-
+        
+        /// <summary>
+        /// Получает относительный путь для хранения в БД
+        /// </summary>
         public static string GetRelativePathForDb(string fullPath)
         {
             if (string.IsNullOrEmpty(fullPath)) return null;
@@ -27,13 +27,27 @@ namespace WpfAppTrip.Helpers
             return fullPath.Replace(BaseDirectory, "")
                          .TrimStart('\\', '/');
         }
-
+        
+        /// <summary>
+        /// Проверяет существование изображения по относительному пути
+        /// </summary>
         public static bool IsImageExists(string relativePath)
         {
             if (string.IsNullOrEmpty(relativePath)) return false;
             
             string fullPath = Path.Combine(BaseDirectory, relativePath);
             return File.Exists(fullPath);
+        }
+        
+        /// <summary>
+        /// Получает URI для использования в XAML
+        /// </summary>
+        public static Uri GetImageUri(string relativePath)
+        {
+            if (string.IsNullOrEmpty(relativePath)) return null;
+            
+            // Для использования в XAML (pack://application:,,,/)
+            return new Uri($"pack://application:,,,/{relativePath}", UriKind.Absolute);
         }
     }
 } 

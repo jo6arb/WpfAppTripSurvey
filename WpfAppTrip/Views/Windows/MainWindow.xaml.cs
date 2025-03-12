@@ -31,12 +31,15 @@ namespace WpfAppTrip.Views.Windows
         {
             InitializeComponent();
             _authService = new AuthService();
-            DataContext = this;
-
-            // Инициализация команд
-            NavigateToSurveyCommand = new RelayCommand(param => StartSurveyButton_Click(null, null));
-            NavigateToAdminCommand = new RelayCommand(param => NavigateToAdmin());
-            LogoutCommand = new RelayCommand(param => Logout());
+            
+            // Настройка навигации
+            var navigationService = new NavigationService(MainFrame);
+            
+            // Проверка авторизации
+            UpdateUserInfo();
+            
+            // Начальная страница
+            MainFrame.Navigate(new SurveyPage());
         }
 
         public bool IsUserLoggedIn => AuthService.CurrentUser != null;
@@ -57,24 +60,44 @@ namespace WpfAppTrip.Views.Windows
             }
         }
 
-        private void StartSurveyButton_Click(object sender, RoutedEventArgs e)
+        private void UpdateUserInfo()
         {
-            IsWelcomePageVisible = false;
+            if (_authService.CurrentUser != null)
+            {
+                UserNameTextBlock.Text = _authService.CurrentUser.Username;
+                UserRoleTextBlock.Text = _authService.CurrentUser.Role;
+                
+                // Показать/скрыть элементы в зависимости от роли
+                AdminPanelButton.Visibility = _authService.CurrentUser.IsAdmin ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                UserNameTextBlock.Text = "Гость";
+                UserRoleTextBlock.Text = "";
+                AdminPanelButton.Visibility = Visibility.Collapsed;
+            }
+        }
+        
+        private void SurveyButton_Click(object sender, RoutedEventArgs e)
+        {
             MainFrame.Navigate(new SurveyPage());
         }
-
-        private void NavigateToAdmin()
+        
+        private void AdminPanelButton_Click(object sender, RoutedEventArgs e)
         {
-            IsWelcomePageVisible = false;
             MainFrame.Navigate(new AdminPage());
         }
-
-        private void Logout()
+        
+        private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             _authService.Logout();
-            var loginWindow = new LoginWindow();
-            loginWindow.Show();
-            this.Close();
+            UpdateUserInfo();
+            MainFrame.Navigate(new SurveyPage());
+        }
+        
+        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainFrame.Navigate(new Login());
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

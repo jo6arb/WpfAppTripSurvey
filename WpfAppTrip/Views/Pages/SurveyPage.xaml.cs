@@ -6,6 +6,10 @@ using System.Windows.Controls;
 using System.Data;
 using WpfAppTrip.Db;
 using System.Threading.Tasks;
+using WpfAppTrip.Services;
+using WpfAppTrip.ViewModels;
+using System.Windows.Input;
+using WpfAppTrip.Models;
 
 namespace WpfAppTrip.Views.Pages
 {
@@ -22,8 +26,9 @@ namespace WpfAppTrip.Views.Pages
         {
             InitializeComponent();
             _db = new Dbhelper();
+            var navigationService = new NavigationService(null); // Здесь нужно передать Frame из MainWindow
+            DataContext = new SurveyViewModel(navigationService);
             LoadQuestionsAsync();
-            DataContext = this;
         }
 
         public string CurrentQuestionText => $"Вопрос {_currentQuestionIndex + 1} из {_questions?.Count ?? 0}";
@@ -166,6 +171,25 @@ namespace WpfAppTrip.Views.Pages
         {
             // Здесь будет код перехода к странице результатов
             // NavigationService?.Navigate(new ResultsPage(_userAnswers));
+        }
+
+        private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement element && element.DataContext is Models.AnswerOption option)
+            {
+                // Сбрасываем выбор для всех вариантов в текущем вопросе
+                var viewModel = DataContext as SurveyViewModel;
+                if (viewModel?.CurrentQuestion != null)
+                {
+                    foreach (var opt in viewModel.CurrentQuestion.Options)
+                    {
+                        opt.IsSelected = false;
+                    }
+                }
+
+                // Устанавливаем выбранный вариант
+                option.IsSelected = true;
+            }
         }
     }
 

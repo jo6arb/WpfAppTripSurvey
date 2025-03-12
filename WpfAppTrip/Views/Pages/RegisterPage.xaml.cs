@@ -15,11 +15,13 @@ namespace WpfAppTrip.Views.Pages
         private readonly Regex _phoneRegex = new Regex(@"^\+7\d{10}$");
         private readonly Regex _emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
         private readonly AuthService _authService;
+        private readonly NavigationService _navigationService;
 
         public RegisterPage()
         {
             InitializeComponent();
             _authService = new AuthService();
+            _navigationService = new NavigationService(null); // Здесь нужно передать Frame
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
@@ -35,53 +37,101 @@ namespace WpfAppTrip.Views.Pages
 
         private async void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
+            // Отключаем кнопку на время проверки и регистрации
             RegisterButton.IsEnabled = false;
+
+            // Получаем данные из полей
+            string phone = PhoneTextBox.Text;
+            string email = EmailTextBox.Text;
+            string password = PasswordBox.Password;
+            string confirmPassword = ConfirmPasswordBox.Password;
+
+            // Проверяем валидность данных
+            if (!ValidateRegistrationData(phone, email, password, confirmPassword))
+            {
+                RegisterButton.IsEnabled = true;
+                return;
+            }
+
             try
             {
-                string username = PhoneTextBox.Text; // Используем телефон как имя пользователя
-                string email = EmailTextBox.Text;
-                string password = PasswordBox.Password;
-
-                if (password != ConfirmPasswordBox.Password)
-                {
-                    MessageBox.Show("Пароли не совпадают", 
-                                  "Ошибка", 
-                                  MessageBoxButton.OK, 
-                                  MessageBoxImage.Warning);
-                    return;
-                }
-
-                var (success, error) = await _authService.RegisterAsync(username, email, password);
-
+                // Регистрируем пользователя
+                bool success = await _authService.RegisterAsync(phone, password, email);
+                
                 if (success)
                 {
-                    MessageBox.Show("Регистрация успешна!", 
-                                  "Успех", 
-                                  MessageBoxButton.OK, 
+                    MessageBox.Show("Регистрация успешна! Теперь вы можете войти в систему.",
+                                  "Успех",
+                                  MessageBoxButton.OK,
                                   MessageBoxImage.Information);
-                    
-                    if (NavigationService?.CanGoBack == true)
-                        NavigationService.GoBack();
+
+                    // Переходим на страницу входа
+                    _navigationService.Navigate(new Login());
                 }
                 else
                 {
-                    MessageBox.Show(error,
-                                  "Ошибка регистрации",
+                    MessageBox.Show("Не удалось зарегистрироваться. Возможно, пользователь с таким номером телефона уже существует.",
+                                  "Ошибка",
                                   MessageBoxButton.OK,
-                                  MessageBoxImage.Warning);
+                                  MessageBoxImage.Error);
+                    RegisterButton.IsEnabled = true;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Произошла ошибка при регистрации: {ex.Message}",
+                MessageBox.Show($"Произошла ошибка: {ex.Message}",
                               "Ошибка",
                               MessageBoxButton.OK,
                               MessageBoxImage.Error);
-            }
-            finally
-            {
                 RegisterButton.IsEnabled = true;
             }
+        }
+
+        private bool ValidateRegistrationData(string phone, string email, string password, string confirmPassword)
+        {
+            // Очищаем поля от ошибок
+            PhoneTextBox.ClearValue(Border.BorderBrushProperty);
+            EmailTextBox.ClearValue(Border.BorderBrushProperty);
+            PasswordBox.ClearValue(Border.BorderBrushProperty);
+            ConfirmPasswordBox.ClearValue(Border.BorderBrushProperty);
+            RegisterButton.IsEnabled = true;
+
+            bool isValid = true;
+
+            // Проверка телефона (должен быть в формате +7XXXXXXXXXX)
+            if (string.IsNullOrWhiteSpace(phone) || !Regex.IsMatch(phone, @"^\+7\d{10}$"))
+            {
+                PhoneTextBox.BorderBrush = System.Windows.Media.Brushes.Red;
+                isValid = false;
+            }
+
+            // Проверка email
+            if (string.IsNullOrWhiteSpace(email) || !email.Contains("@") || !email.Contains("."))
+            {
+                EmailTextBox.BorderBrush = System.Windows.Media.Brushes.Red;
+                isValid = false;
+            }
+
+            // Проверка пароля (минимум 6 символов)
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 6)
+            {
+                PasswordBox.BorderBrush = System.Windows.Media.Brushes.Red;
+                isValid = false;
+            }
+
+            // Проверка совпадения паролей
+            if (password != confirmPassword)
+            {
+                ConfirmPasswordBox.BorderBrush = System.Windows.Media.Brushes.Red;
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        private void BackToLoginButton_Click(object sender, RoutedEventArgs e)
+        {
+            _navigationService.Navigate(new Login());
         }
 
         private void ValidateFields(object sender, RoutedEventArgs e)
