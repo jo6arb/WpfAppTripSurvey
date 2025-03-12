@@ -39,6 +39,7 @@ namespace WpfAppTrip
             container.RegisterType<MainViewModel>();
             container.RegisterType<SurveyViewModel>();
             container.RegisterType<ToursViewModel>();
+            container.RegisterType<ProfileViewModel>();
 
             // Сохраняем контейнер в статическом свойстве
             Container = container;

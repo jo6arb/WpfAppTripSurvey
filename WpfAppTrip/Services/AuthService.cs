@@ -62,7 +62,7 @@ namespace WpfAppTrip.Services
                 };
 
                 var user = await _dbHelper.GetSingleAsync<User>(
-                    "SELECT UserID, Username, Email, Password, Role, COALESCE(RegistrationDate, GETDATE()) AS RegistrationDate FROM Users WHERE Email = @Email AND Password = @Password",
+                    "SELECT UserID, Username, Email, Password, Role, Phone, COALESCE(RegistrationDate, GETDATE()) AS RegistrationDate FROM Users WHERE Email = @Email AND Password = @Password",
                     reader => new User
                     {
                         UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
@@ -70,6 +70,7 @@ namespace WpfAppTrip.Services
                         Email = reader.GetString(reader.GetOrdinal("Email")),
                         Password = reader.GetString(reader.GetOrdinal("Password")),
                         Role = reader.GetString(reader.GetOrdinal("Role")),
+                        Phone = reader.IsDBNull(reader.GetOrdinal("Phone")) ? null : reader.GetString(reader.GetOrdinal("Phone")),
                         RegistrationDate = reader.GetDateTime(reader.GetOrdinal("RegistrationDate"))
                     },
                     parameters);
@@ -284,6 +285,42 @@ namespace WpfAppTrip.Services
             {
                 Debug.WriteLine($"Ошибка при изменении пароля: {ex.Message}");
                 return (false, $"Ошибка изменения пароля: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Обновляет телефон пользователя
+        /// </summary>
+        /// <param name="userId">Идентификатор пользователя</param>
+        /// <param name="phone">Новый номер телефона</param>
+        /// <returns>Кортеж с результатом операции и сообщением об ошибке</returns>
+        public async Task<(bool Success, string Error)> UpdateUserPhoneAsync(int userId, string phone)
+        {
+            try
+            {
+                // Обновление телефона пользователя
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@UserID", userId },
+                    { "@Phone", phone }
+                };
+
+                await _dbHelper.ExecuteNonQueryAsync(
+                    "UPDATE Users SET Phone = @Phone WHERE UserID = @UserID",
+                    parameters);
+
+                // Обновляем текущего пользователя, если это он
+                if (_currentUser != null && _currentUser.UserID == userId)
+                {
+                    _currentUser.Phone = phone;
+                }
+
+                return (true, null);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка при обновлении телефона пользователя: {ex.Message}");
+                return (false, $"Ошибка обновления: {ex.Message}");
             }
         }
     }

@@ -47,6 +47,9 @@ namespace WpfAppTrip.Views.Windows
 
             // Subscribe to the event to navigate to the welcome page
             _viewModel.NavigateToWelcomePage += OnNavigateToWelcomePage;
+            
+            // Subscribe to the event to navigate to the profile page
+            _viewModel.NavigateToProfilePage += OnNavigateToProfilePage;
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
@@ -71,6 +74,11 @@ namespace WpfAppTrip.Views.Windows
         private void OnNavigateToWelcomePage()
         {
             MainFrame.Navigate(new WelcomePage());
+        }
+
+        private void OnNavigateToProfilePage()
+        {
+            ProfileFrame.Navigate(new CabinetExt());
         }
 
         // Вспомогательный метод для получения MainFrame из других классов

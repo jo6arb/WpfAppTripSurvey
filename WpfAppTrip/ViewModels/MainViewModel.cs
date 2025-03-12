@@ -3,6 +3,7 @@ using System.Windows.Input;
 using WpfAppTrip.Commands;
 using WpfAppTrip.Services;
 using System.Diagnostics;
+using WpfAppTrip.Models;
 
 namespace WpfAppTrip.ViewModels
 {
@@ -12,8 +13,10 @@ namespace WpfAppTrip.ViewModels
         private readonly AuthService _authService;
         private readonly IDialogService _dialogService;
         private bool _isWelcomePageVisible = true;
+        private bool _isProfilePanelVisible = false;
 
         public event Action NavigateToWelcomePage;
+        public event Action NavigateToProfilePage;
 
         public MainViewModel(
             INavigationService navigationService,
@@ -28,6 +31,7 @@ namespace WpfAppTrip.ViewModels
             NavigateToSurveyCommand = new RelayCommand(param => NavigateToSurvey());
             NavigateToAdminCommand = new RelayCommand(param => NavigateToAdmin(), param => CanNavigateToAdmin());
             LogoutCommand = new RelayCommand(param => Logout());
+            ToggleProfilePanelCommand = new RelayCommand(param => ToggleProfilePanel());
 
             // Подписываемся на событие навигации
             _navigationService.Navigated += (sender, e) =>
@@ -40,6 +44,7 @@ namespace WpfAppTrip.ViewModels
         public bool IsUserLoggedIn => _authService.GetCurrentUser() != null;
         public bool IsAdmin => _authService.IsCurrentUserAdmin();
         public string CurrentUserName => _authService.GetCurrentUser()?.Username ?? string.Empty;
+        public User CurrentUser => _authService.GetCurrentUser();
 
         public bool IsWelcomePageVisible
         {
@@ -51,9 +56,30 @@ namespace WpfAppTrip.ViewModels
             }
         }
 
+        public bool IsProfilePanelVisible
+        {
+            get => _isProfilePanelVisible;
+            set
+            {
+                _isProfilePanelVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand NavigateToSurveyCommand { get; }
         public ICommand NavigateToAdminCommand { get; }
         public ICommand LogoutCommand { get; }
+        public ICommand ToggleProfilePanelCommand { get; }
+
+        private void ToggleProfilePanel()
+        {
+            IsProfilePanelVisible = !IsProfilePanelVisible;
+            
+            if (IsProfilePanelVisible)
+            {
+                NavigateToProfilePage?.Invoke();
+            }
+        }
 
         private void NavigateToSurvey()
         {
@@ -95,9 +121,11 @@ namespace WpfAppTrip.ViewModels
         {
             _authService.Logout();
             IsWelcomePageVisible = true;
+            IsProfilePanelVisible = false;
             OnPropertyChanged(nameof(IsUserLoggedIn));
             OnPropertyChanged(nameof(IsAdmin));
             OnPropertyChanged(nameof(CurrentUserName));
+            OnPropertyChanged(nameof(CurrentUser));
         }
 
         public void UpdateAllProperties()
@@ -105,6 +133,7 @@ namespace WpfAppTrip.ViewModels
             OnPropertyChanged(nameof(IsUserLoggedIn));
             OnPropertyChanged(nameof(IsAdmin));
             OnPropertyChanged(nameof(CurrentUserName));
+            OnPropertyChanged(nameof(CurrentUser));
         }
 
         public void ShowWelcomePage()

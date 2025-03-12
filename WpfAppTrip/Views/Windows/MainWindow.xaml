@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:WpfAppTrip.Views.Windows"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:vm="clr-namespace:WpfAppTrip.ViewModels"
+        xmlns:pages="clr-namespace:WpfAppTrip.Views.Pages"
         mc:Ignorable="d"
         Title="МаршрутМастер" 
         Height="700" 
@@ -51,15 +52,19 @@
                 <!-- Информация о пользователе и кнопка выхода -->
                 <StackPanel Orientation="Horizontal"
                             DockPanel.Dock="Right">
-                    <materialDesign:PackIcon Kind="Account" 
-                                           Width="24" 
-                                           Height="24" 
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,8,0"/>
-                    <TextBlock Text="{Binding CurrentUserName}"
-                              VerticalAlignment="Center"
-                              FontWeight="Medium"
-                              Margin="0,0,16,0"/>
+                    <Button Style="{StaticResource MenuButtonStyle}"
+                            Command="{Binding ToggleProfilePanelCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Account" 
+                                                   Width="24" 
+                                                   Height="24" 
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
+                            <TextBlock Text="{Binding CurrentUserName}"
+                                      VerticalAlignment="Center"
+                                      FontWeight="Medium"/>
+                        </StackPanel>
+                    </Button>
                     
                     <Button Style="{StaticResource MenuButtonStyle}"
                             Command="{Binding LogoutCommand}">
@@ -106,53 +111,39 @@
         </materialDesign:ColorZone>
 
         <!-- Основной контент -->
-        <Frame x:Name="MainFrame" Grid.Row="1" NavigationUIVisibility="Hidden"/>
-        
-        <!-- Приветственная страница -->
-        <Grid Grid.Row="1" 
-              x:Name="WelcomePage"
-              Visibility="{Binding IsWelcomePageVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <!-- Центральный блок с изображением и текстом -->
-            <!--<StackPanel Grid.Row="1" 
-                        HorizontalAlignment="Center">
-                
-                <Border Width="300" 
-                        Height="300" 
-                        CornerRadius="20"
-                        Background="#E3F2FD"
-                        Margin="0,0,0,30">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="10" 
-                                        ShadowDepth="1" 
-                                        Direction="270" 
-                                        Opacity="0.2"/>
-                    </Border.Effect>
-                    <Image Source="/Images/travel-logo.png" 
-                           Stretch="UniformToFill"
-                           Margin="30"/>
-                </Border>
-
-                <TextBlock Text="Опрос для подбора лучшего тура"
-                           HorizontalAlignment="Center" 
-                           Style="{StaticResource MaterialDesignHeadline4TextBlock}"
-                           Foreground="{StaticResource ButtonTextBrush}"
-                           Margin="0,0,0,30"/>
-                
-                <Button Content="Начать опрос"
-                        Command="{Binding NavigateToSurveyCommand}"
-                        Style="{StaticResource MaterialDesignRaisedButton}"
-                        Background="{StaticResource ButtonTextBrush}"
-                        Foreground="White"
-                        FontSize="18"
-                        Height="54"
-                        Width="220"/>
-            </StackPanel>-->
+        <Grid Grid.Row="1">
+            <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden"/>
+            
+            <!-- Приветственная страница -->
+            <Grid x:Name="WelcomePage"
+                  Visibility="{Binding IsWelcomePageVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+            </Grid>
+            
+            <!-- Боковая панель профиля -->
+            <Grid HorizontalAlignment="Right" Width="300">
+                <materialDesign:Card 
+                    Visibility="{Binding IsProfilePanelVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    materialDesign:ShadowAssist.ShadowDepth="Depth3"
+                    UniformCornerRadius="0"
+                    Margin="0">
+                    <Grid>
+                        <Frame x:Name="ProfileFrame" NavigationUIVisibility="Hidden"/>
+                        <Button 
+                            Style="{StaticResource MaterialDesignIconButton}"
+                            Command="{Binding ToggleProfilePanelCommand}"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"
+                            Margin="0,10,10,0">
+                            <materialDesign:PackIcon Kind="Close" Width="24" Height="24"/>
+                        </Button>
+                    </Grid>
+                </materialDesign:Card>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

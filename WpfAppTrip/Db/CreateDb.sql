@@ -11,6 +11,7 @@ CREATE TABLE Users (
     Username NVARCHAR(50) NOT NULL UNIQUE,
     Password NVARCHAR(100) NOT NULL,
     Email NVARCHAR(100) NOT NULL UNIQUE,
+    Phone NVARCHAR(20) NULL,
     Role NVARCHAR(20) DEFAULT 'User' CHECK (Role IN ('User', 'Admin')),
     RegistrationDate DATETIME DEFAULT GETDATE()
 )
