@@ -17,6 +17,9 @@ namespace WpfAppTrip.Views.Windows
         private readonly MainViewModel _viewModel;
         private readonly INavigationService _navigationService;
         
+        // Флаг, указывающий, что окно закрывается из-за навигации к другому окну
+        public bool IsClosingForNavigation { get; set; }
+        
         public static MainWindow Instance
         {
             get
@@ -60,7 +63,12 @@ namespace WpfAppTrip.Views.Windows
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            Application.Current.Shutdown();
+            
+            // Если окно закрывается из-за навигации, не завершаем приложение
+            if (!IsClosingForNavigation)
+            {
+                Application.Current.Shutdown();
+            }
         }
 
         private void StartSurveyButton_Click(object sender, RoutedEventArgs e)

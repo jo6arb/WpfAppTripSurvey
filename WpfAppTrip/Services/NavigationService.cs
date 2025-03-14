@@ -128,13 +128,29 @@ namespace WpfAppTrip.Services
         {
             try
             {
+                // Создаем новое окно входа
                 var loginWindow = LoginWindow.Instance;
+                
+                // Устанавливаем его как главное окно приложения
+                Application.Current.MainWindow = loginWindow;
+                
+                // Показываем окно входа
                 loginWindow.Show();
                 
+                // Закрываем текущее окно, если оно не является окном входа
                 if (_currentWindow != null && _currentWindow != loginWindow)
                 {
+                    // Отключаем обработчик OnClosed, чтобы избежать вызова Shutdown
+                    if (_currentWindow is MainWindow mainWindow)
+                    {
+                        // Устанавливаем флаг, что окно закрывается из-за перехода к окну входа
+                        mainWindow.IsClosingForNavigation = true;
+                    }
+                    
                     _currentWindow.Close();
                 }
+                
+                // Обновляем текущее окно
                 _currentWindow = loginWindow;
                 
                 // Сбрасываем Frame для следующего окна
@@ -153,13 +169,23 @@ namespace WpfAppTrip.Services
         {
             try
             {
+                // Создаем новое главное окно
                 var mainWindow = MainWindow.Instance;
+                
+                // Устанавливаем его как главное окно приложения
+                Application.Current.MainWindow = mainWindow;
+                
+                // Показываем главное окно
                 mainWindow.Show();
                 
+                // Закрываем текущее окно, если оно не является главным окном
                 if (_currentWindow != null && _currentWindow != mainWindow)
                 {
+                    // Если текущее окно - LoginWindow, просто закрываем его
                     _currentWindow.Close();
                 }
+                
+                // Обновляем текущее окно
                 _currentWindow = mainWindow;
                 
                 // Сбрасываем Frame для следующего окна

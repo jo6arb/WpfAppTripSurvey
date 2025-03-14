@@ -169,31 +169,9 @@ namespace WpfAppTrip.ViewModels
             
             try
             {
-                // Создаем новое окно входа
-                var loginWindow = new LoginWindow();
-                
-                // Устанавливаем его как главное окно приложения
-                Application.Current.MainWindow = loginWindow;
-                
-                // Показываем окно входа
-                loginWindow.Show();
-                
-                // Находим текущее окно, из которого выполняется выход
-                Window currentWindow = null;
-                foreach (Window window in Application.Current.Windows)
-                {
-                    if (window.IsActive && window.GetType() != typeof(LoginWindow))
-                    {
-                        currentWindow = window;
-                        break;
-                    }
-                }
-                
-                // Закрываем текущее окно, если оно найдено и не является окном входа
-                if (currentWindow != null && currentWindow.GetType() != typeof(LoginWindow))
-                {
-                    currentWindow.Close();
-                }
+                // Используем NavigationService для показа окна входа
+                // Это автоматически закроет текущее окно
+                _navigationService.ShowLoginWindow();
                 
                 // Сообщаем пользователю об успешном выходе
                 _dialogService.ShowInfo("Вы успешно вышли из системы");

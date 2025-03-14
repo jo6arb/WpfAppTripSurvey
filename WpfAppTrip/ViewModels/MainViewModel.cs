@@ -120,6 +120,11 @@ namespace WpfAppTrip.ViewModels
         private void Logout()
         {
             _authService.Logout();
+            
+            // Показываем окно входа через NavigationService
+            _navigationService.ShowLoginWindow();
+            
+            // Обновляем свойства ViewModel
             IsWelcomePageVisible = true;
             IsProfilePanelVisible = false;
             OnPropertyChanged(nameof(IsUserLoggedIn));
