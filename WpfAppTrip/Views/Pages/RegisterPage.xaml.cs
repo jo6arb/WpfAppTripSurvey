@@ -43,7 +43,16 @@ namespace WpfAppTrip.Views.Pages
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            ValidateFields(sender, e);
+            // Очистка полей при загрузке страницы
+            LastNameTextBox.Clear();
+            FirstNameTextBox.Clear();
+            MiddleNameTextBox.Clear();
+            EmailTextBox.Clear();
+            PhoneTextBox.Text = "+7";
+            PasswordBox.Clear();
+            ConfirmPasswordBox.Clear();
+            
+            ValidateFields(null, null);
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -62,27 +71,35 @@ namespace WpfAppTrip.Views.Pages
             }
         }
 
-        private void ValidateFields(object sender, RoutedEventArgs e)
+        private void ValidateFields(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
-            if (PhoneTextBox == null || EmailTextBox == null || PasswordBox == null ||
-                ConfirmPasswordBox == null || RegisterButton == null)
-                return;
-
-            bool isPhoneValid = !string.IsNullOrEmpty(PhoneTextBox.Text) && _phoneRegex.IsMatch(PhoneTextBox.Text);
-            bool isEmailValid = !string.IsNullOrEmpty(EmailTextBox.Text) && _emailRegex.IsMatch(EmailTextBox.Text);
-            bool isPasswordValid = !string.IsNullOrEmpty(PasswordBox.Password) && PasswordBox.Password.Length >= 6;
-            bool isConfirmPasswordValid = !string.IsNullOrEmpty(ConfirmPasswordBox.Password) &&
-                                        PasswordBox.Password == ConfirmPasswordBox.Password;
-
-            RegisterButton.IsEnabled = isPhoneValid && isEmailValid && isPasswordValid && isConfirmPasswordValid;
-            
-            // Обновляем ViewModel
             if (_viewModel != null)
             {
-                _viewModel.Phone = PhoneTextBox.Text;
+                _viewModel.LastName = LastNameTextBox.Text;
+                _viewModel.FirstName = FirstNameTextBox.Text;
+                _viewModel.MiddleName = MiddleNameTextBox.Text;
                 _viewModel.Email = EmailTextBox.Text;
+                _viewModel.Phone = PhoneTextBox.Text;
                 _viewModel.Password = PasswordBox.Password;
                 _viewModel.ConfirmPassword = ConfirmPasswordBox.Password;
+                
+                RegisterButton.IsEnabled = _viewModel.IsRegisterEnabled;
+            }
+        }
+
+        private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            ValidateFields(sender, e);
+        }
+
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.Password = PasswordBox.Password;
+                _viewModel.ConfirmPassword = ConfirmPasswordBox.Password;
+                
+                RegisterButton.IsEnabled = _viewModel.IsRegisterEnabled;
             }
         }
 
@@ -91,8 +108,11 @@ namespace WpfAppTrip.Views.Pages
             RegisterButton.IsEnabled = false;
             try
             {
-                string username = PhoneTextBox.Text; // Используем телефон как имя пользователя
+                string phone = PhoneTextBox.Text;
                 string email = EmailTextBox.Text;
+                string lastName = LastNameTextBox.Text;
+                string firstName = FirstNameTextBox.Text;
+                string middleName = MiddleNameTextBox.Text;
                 string password = PasswordBox.Password;
 
                 if (password != ConfirmPasswordBox.Password)
@@ -101,14 +121,26 @@ namespace WpfAppTrip.Views.Pages
                     return;
                 }
 
-                var (success, error) = await _authService.RegisterAsync(username, email, password);
+                var (success, error) = await _authService.RegisterAsync(phone, email, password, lastName, firstName, middleName);
 
                 if (success)
                 {
                     _dialogService.ShowInfo("Регистрация успешна!");
                     
-                    // Автоматически логинимся
-                    var (loginSuccess, loginError) = await _authService.LoginAsync(email, password);
+                    // Проверяем, откуда пришел пользователь
+                    var frame = Window.GetWindow(this)?.FindName("MainFrame") as Frame;
+                    var previousPage = frame?.NavigationService?.CanGoBack == true ? 
+                        frame.NavigationService.Content : null;
+                    
+                    // Если пришли со страницы администратора, возвращаемся на нее
+                    if (previousPage is AdminPage)
+                    {
+                        _navigationService.NavigateToPage("Admin");
+                        return;
+                    }
+                    
+                    // Иначе стандартное поведение - автоматический логин
+                    var (loginSuccess, loginError) = await _authService.LoginAsync(phone, password);
                     if (loginSuccess)
                     {
                         // Обновляем главное окно
@@ -140,15 +172,10 @@ namespace WpfAppTrip.Views.Pages
             }
         }
 
-        private async Task YourMethodNameAsync()
+        private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
-            await Task.Delay(1); // Или другая асинхронная операция
-            // ... ваш код ...
-        }
-
-        private void YourMethodName()
-        {
-            // ... ваш код ...
+            // Переходим на страницу входа
+            _navigationService.NavigateToPage("Login");
         }
     }
 }

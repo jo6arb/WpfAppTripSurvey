@@ -3,20 +3,37 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using WpfAppTrip.Commands;
 using WpfAppTrip.Db;
+using WpfAppTrip.Services;
+using Unity;
 
 namespace WpfAppTrip.Views.Pages
 {
     public partial class AdminPage : Page
     {
         private readonly Dbhelper _db;
+        private readonly INavigationService _navigationService;
         public ObservableCollection<UserModel> Users { get; set; }
+        
+        // Команды для управления пользователями
+        public ICommand SaveUserCommand { get; private set; }
+        public ICommand DeleteUserCommand { get; private set; }
+        public ICommand AddUserCommand { get; private set; }
 
         public AdminPage()
         {
             InitializeComponent();
             _db = new Dbhelper();
+            _navigationService = App.Container.Resolve<INavigationService>();
             Users = new ObservableCollection<UserModel>();
+            
+            // Инициализация команд
+            SaveUserCommand = new RelayCommand(param => SaveUser(param as UserModel));
+            DeleteUserCommand = new RelayCommand(param => DeleteUser(param as UserModel));
+            AddUserCommand = new RelayCommand(_ => AddNewUser());
+            
             DataContext = this;
             LoadUsers();
         }
@@ -54,6 +71,8 @@ namespace WpfAppTrip.Views.Pages
 
         private async void SaveUser(UserModel user)
         {
+            if (user == null) return;
+            
             try
             {
                 var parameters = new Dictionary<string, object>
@@ -85,6 +104,8 @@ namespace WpfAppTrip.Views.Pages
 
         private async void DeleteUser(UserModel user)
         {
+            if (user == null) return;
+            
             if (MessageBox.Show("Вы уверены, что хотите удалить этого пользователя?",
                               "Подтверждение",
                               MessageBoxButton.YesNo,
@@ -117,6 +138,12 @@ namespace WpfAppTrip.Views.Pages
                 }
             }
         }
+        
+        private void AddNewUser()
+        {
+            // Переходим на страницу регистрации
+            _navigationService.NavigateToPage("Register");
+        }
     }
 
     public class UserModel
@@ -127,4 +154,6 @@ namespace WpfAppTrip.Views.Pages
         public string Role { get; set; }
         public DateTime RegistrationDate { get; set; }
     }
+    
+    // Класс для реализации команд
 } 

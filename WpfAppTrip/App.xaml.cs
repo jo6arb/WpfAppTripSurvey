@@ -5,6 +5,7 @@ using WpfAppTrip.ViewModels;
 using WpfAppTrip.Views.Windows;
 using WpfAppTrip.Helpers;
 using WpfAppTrip.Db;
+using Unity.Injection;
 
 namespace WpfAppTrip
 {
@@ -32,14 +33,28 @@ namespace WpfAppTrip
             container.RegisterSingleton<INavigationService, NavigationService>();
             container.RegisterSingleton<AuthService>();
             container.RegisterSingleton<Dbhelper>();
+            container.RegisterSingleton<IPdfTicketService, PdfTicketService>();
 
             // Регистрация ViewModels
             container.RegisterType<LoginViewModel>();
-            container.RegisterType<RegisterViewModel>();
-            container.RegisterType<MainViewModel>();
             container.RegisterType<SurveyViewModel>();
             container.RegisterType<ToursViewModel>();
-            container.RegisterType<ProfileViewModel>();
+            container.RegisterType<ProfileViewModel>(new InjectionConstructor(
+                new ResolvedParameter<AuthService>(),
+                new ResolvedParameter<IDialogService>(),
+                new ResolvedParameter<INavigationService>(),
+                new ResolvedParameter<Dbhelper>()
+            ));
+            container.RegisterType<TicketsHistoryViewModel>();
+
+            // Регистрация TicketBuyViewModel
+            container.RegisterType<TicketBuyViewModel>(new InjectionConstructor(
+                new ResolvedParameter<INavigationService>(),
+                new ResolvedParameter<IDialogService>(),
+                new ResolvedParameter<IPdfTicketService>(),
+                new ResolvedParameter<Dbhelper>(),
+                new ResolvedParameter<FlightOptionViewModel>()
+            ));
 
             // Сохраняем контейнер в статическом свойстве
             Container = container;

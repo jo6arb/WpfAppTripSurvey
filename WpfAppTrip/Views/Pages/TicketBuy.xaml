@@ -248,6 +248,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             
                             <TextBlock Grid.Column="0" 
@@ -258,6 +259,16 @@
                                        Opacity="0.7"/>
                             
                             <Button Grid.Column="1" 
+                                    Content="Открыть билет" 
+                                    Style="{StaticResource MaterialDesignOutlinedButton}"
+                                    Foreground="{StaticResource DarkBlueBrush}"
+                                    Height="40"
+                                    MinWidth="150"
+                                    Margin="0,0,16,0"
+                                    Command="{Binding OpenTicketCommand}"
+                                    Visibility="{Binding TicketFilePath, Converter={StaticResource NullToVisibilityConverter}}"/>
+                            
+                            <Button Grid.Column="2" 
                                     Content="Продолжить" 
                                     Style="{StaticResource MaterialDesignRaisedButton}"
                                     Background="{StaticResource PinkButtonBrush}"

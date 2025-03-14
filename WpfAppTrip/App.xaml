@@ -10,11 +10,18 @@
             <ResourceDictionary.MergedDictionaries>
                 <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Lime" />
 
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Color x:Key="ButtonTextColor">#43555C</Color>
             <SolidColorBrush x:Key="ButtonTextBrush" Color="{StaticResource ButtonTextColor}"/>
+
+            <!-- Цвета для кнопок -->
+            <Color x:Key="DarkBlueColor">#1976D2</Color>
+            <SolidColorBrush x:Key="DarkBlueBrush" Color="{StaticResource DarkBlueColor}"/>
+
+            <Color x:Key="PinkButtonColor">#E91E63</Color>
+            <SolidColorBrush x:Key="PinkButtonBrush" Color="{StaticResource PinkButtonColor}"/>
 
             <!-- Material Design Settings -->
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -26,7 +33,9 @@
             <converters:BooleanToMarginConverter x:Key="BooleanToMarginConverter"/>
             <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
             <converters:TourSelectedConverter x:Key="TourSelectedConverter"/>
-            
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:ZeroToVisibilityConverter x:Key="ZeroToVisibilityConverter" />
+            <converters:NonZeroToVisibilityConverter x:Key="NonZeroToVisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

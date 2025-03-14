@@ -57,6 +57,11 @@ namespace WpfAppTrip.Services
         void NavigateToTickets(Models.Tour tour);
         
         /// <summary>
+        /// Переход на страницу истории билетов
+        /// </summary>
+        void NavigateToTicketsHistory();
+        
+        /// <summary>
         /// Получает главный фрейм приложения
         /// </summary>
         /// <returns>Главный фрейм приложения</returns>

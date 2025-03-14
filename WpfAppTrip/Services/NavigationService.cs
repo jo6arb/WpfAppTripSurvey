@@ -42,7 +42,8 @@ namespace WpfAppTrip.Services
                 { "Survey", typeof(SurveyPage) },
                 { "Admin", typeof(AdminPage) },
                 { "Tours", typeof(Tours) },
-                { "Tickets", typeof(Tickets) }
+                { "Tickets", typeof(Tickets) },
+                { "TicketsHistory", typeof(TicketsHistory) }
             };
             
             Debug.WriteLine("NavigationService: Зарегистрированы страницы:");
@@ -241,6 +242,14 @@ namespace WpfAppTrip.Services
             {
                 Debug.WriteLine($"Ошибка при навигации к странице бронирования билетов: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Переход на страницу истории билетов
+        /// </summary>
+        public void NavigateToTicketsHistory()
+        {
+            NavigateToPage("TicketsHistory");
         }
 
         /// <summary>

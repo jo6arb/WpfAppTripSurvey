@@ -8,10 +8,13 @@ GO
 -- Таблица пользователей
 CREATE TABLE Users (
     UserID INT PRIMARY KEY IDENTITY(1,1),
-    Username NVARCHAR(50) NOT NULL UNIQUE,
+    Username NVARCHAR(50) NOT NULL,
     Password NVARCHAR(100) NOT NULL,
     Email NVARCHAR(100) NOT NULL UNIQUE,
-    Phone NVARCHAR(20) NULL,
+    Phone NVARCHAR(20) NOT NULL UNIQUE,
+    LastName NVARCHAR(100) NOT NULL,
+    FirstName NVARCHAR(100) NOT NULL,
+    MiddleName NVARCHAR(100) NULL,
     Role NVARCHAR(20) DEFAULT 'User' CHECK (Role IN ('User', 'Admin')),
     RegistrationDate DATETIME DEFAULT GETDATE()
 )
@@ -106,6 +109,32 @@ CREATE TABLE Bookings (
 )
 GO
 
+-- Создание таблицы для хранения билетов
+CREATE TABLE Tickets (
+    TicketID INTEGER PRIMARY KEY  IDENTITY(1,1),
+    PassengerLastName NVARCHAR(100) NOT NULL,
+    PassengerFirstName NVARCHAR(100) NOT NULL,
+    PassengerGender NVARCHAR(50),
+    PassengerBirthDate NVARCHAR(50),
+    DocumentType NVARCHAR(100),
+    DocumentNumber NVARCHAR(50) NOT NULL,
+    DocumentExpiryDate NVARCHAR(50),
+    BuyerLastName NVARCHAR(100) NOT NULL,
+    BuyerFirstName NVARCHAR(100) NOT NULL,
+    BuyerEmail NVARCHAR(100),
+    BuyerPhone NVARCHAR(50),
+    RouteInfo NVARCHAR(200) NOT NULL,
+    ClassInfo NVARCHAR(100),
+    TotalPrice REAL NOT NULL,
+    TicketNumber NVARCHAR(50) NOT NULL,
+    TicketFilePath NVARCHAR(500),
+    PurchaseDate NVARCHAR(50) NOT NULL,
+    UserID INTEGER,
+    TourID INTEGER,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (TourID) REFERENCES Tours(TourID)
+);
+
 -- Добавление тестовых данных: Вопросы
 INSERT INTO Questions (QuestionText, OrderNumber) VALUES 
 (N'Какой тип отдыха Вас больше привлекает ?', 1),
@@ -184,7 +213,7 @@ GO
 
 -- Добавление администратора
 INSERT INTO Users (Username, Password, Email, Role) VALUES 
-('admin', 'hashed_password_here', 'admin@example.com', 'Admin')
+('admin', '2345', 'admin@example.com', 'Admin')
 GO
 
 -- Добавление тестовых туров
@@ -222,4 +251,4 @@ INSERT INTO TourCharacteristics (TourID, BudgetLevel, ActivityLevel, ComfortLeve
 (8, 3, 4, 4, 2, 5), -- Египет
 (9, 3, 4, 3, 3, 5), -- Алтай
 (10, 5, 3, 4, 4, 5) -- Исландия
-GO
+GO 

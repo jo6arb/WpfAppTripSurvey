@@ -20,26 +20,20 @@ namespace WpfAppTrip.ViewModels
         private string _email;
         private string _password;
         private bool _isLoginEnabled;
+        private bool _isLoading;
 
         public LoginViewModel(
-            AuthService authService, 
+            AuthService authService,
             INavigationService navigationService,
             IDialogService dialogService)
         {
             _authService = authService;
             _navigationService = navigationService;
             _dialogService = dialogService;
-            
-            BackCommand = new RelayCommand(_ => 
-            {
-                var frame = Application.Current.MainWindow?.FindName("MainFrame") as Frame;
-                if (frame != null)
-                {
-                    frame.Navigate(new WelcomeControl());
-                }
-            });
 
-            LoginCommand = new RelayCommand(async _ => await LoginAsync());
+            LoginCommand = new RelayCommand(async _ => await LoginAsync(), _ => !IsLoading);
+            RegisterCommand = new RelayCommand(_ => _navigationService.NavigateToPage("RegisterPage"), _ => !IsLoading);
+            BackCommand = new RelayCommand(_ => GoBack(), _ => !IsLoading);
         }
 
         public string Phone
@@ -78,35 +72,48 @@ namespace WpfAppTrip.ViewModels
             private set => SetProperty(ref _isLoginEnabled, value);
         }
 
-        public ICommand BackCommand { get; }
+        public bool IsLoading
+        {
+            get => _isLoading;
+            private set => SetProperty(ref _isLoading, value);
+        }
+
         public ICommand LoginCommand { get; }
+        public ICommand RegisterCommand { get; }
+        public ICommand BackCommand { get; }
 
         private void ValidateFields()
         {
-            var phoneRegex = new Regex(@"^\+7\d{10}$");
-            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-
-            bool isPhoneValid = !string.IsNullOrEmpty(Phone) && phoneRegex.IsMatch(Phone);
-            bool isEmailValid = !string.IsNullOrEmpty(Email) && emailRegex.IsMatch(Email);
-            bool isPasswordValid = !string.IsNullOrEmpty(Password) && Password.Length >= 6;
-
-            IsLoginEnabled = isPhoneValid && isEmailValid && isPasswordValid;
+            IsLoginEnabled = !string.IsNullOrEmpty(Phone) && !string.IsNullOrEmpty(Password);
         }
 
-        private bool CanLogin(object parameter)
+        private void GoBack()
         {
-            return IsLoginEnabled;
+            // Получаем Frame из окна
+            var frame = Application.Current.MainWindow?.FindName("MainFrame") as Frame;
+            if (frame != null)
+            {
+                // Очищаем историю навигации
+                while (frame.CanGoBack)
+                {
+                    frame.RemoveBackEntry();
+                }
+                // Очищаем текущую страницу, чтобы показать стартовый контент
+                frame.Content = null;
+            }
         }
 
         private async Task LoginAsync()
         {
+            IsLoading = true;
             IsLoginEnabled = false;
             try
             {
-                var (success, error) = await _authService.LoginAsync(Email, Password);
+                var (success, error) = await _authService.LoginAsync(Phone, Password);
+
                 if (success)
                 {
-                    _navigationService.ShowMainWindow();
+                    _navigationService.NavigateToPage("MainPage");
                 }
                 else
                 {
@@ -119,6 +126,7 @@ namespace WpfAppTrip.ViewModels
             }
             finally
             {
+                IsLoading = false;
                 IsLoginEnabled = true;
             }
         }

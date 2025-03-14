@@ -39,6 +39,12 @@
   </PropertyGroup>
   <!-- Ссылки на сборки -->
   <ItemGroup>
+    <Reference Include="BouncyCastle.Cryptography, Version=2.0.0.0, Culture=neutral, PublicKeyToken=072edcf4a5328938, processorArchitecture=MSIL">
+      <HintPath>..\packages\BouncyCastle.Cryptography.2.4.0\lib\net461\BouncyCastle.Cryptography.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.4, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.13.4\lib\net461\itextsharp.dll</HintPath>
+    </Reference>
     <Reference Include="MaterialDesignColors, Version=2.1.4.0, Culture=neutral, PublicKeyToken=df2a72020bd7962a">
       <HintPath>..\packages\MaterialDesignColors.2.1.4\lib\net462\MaterialDesignColors.dll</HintPath>
       <Private>True</Private>
@@ -89,18 +95,24 @@
     <Compile Include="Converters\BooleanToMarginConverter.cs" />
     <Compile Include="Converters\InverseBooleanConverter.cs" />
     <Compile Include="Converters\InverseBooleanToVisibilityConverter.cs" />
+    <Compile Include="Converters\NonZeroToVisibilityConverter.cs" />
     <Compile Include="Converters\NullImageConverter.cs" />
+    <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Converters\TourSelectedConverter.cs" />
+    <Compile Include="Converters\ZeroToVisibilityConverter.cs" />
     <Compile Include="Models\Booking.cs" />
     <Compile Include="Models\MatchedTour.cs" />
     <!-- Модели -->
     <Compile Include="Models\Question.cs" />
     <Compile Include="Models\AnswerOption.cs" />
+    <Compile Include="Models\TicketData.cs" />
     <Compile Include="Models\Tour.cs" />
     <Compile Include="Models\TourCategory.cs" />
     <Compile Include="Models\TourCharacteristic.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserAnswer.cs" />
+    <Compile Include="Services\DbHelper.cs" />
+    <Compile Include="Services\PdfTicketService.cs" />
     <!-- ViewModels -->
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\INavigationAware.cs" />
@@ -122,6 +134,7 @@
     <!-- Helpers -->
     <Compile Include="Helpers\ImagePathHelper.cs" />
     <Compile Include="ViewModels\TicketBuyViewModel.cs" />
+    <Compile Include="ViewModels\TicketsHistoryViewModel.cs" />
     <Compile Include="ViewModels\TicketsViewModel.cs" />
     <Compile Include="ViewModels\ToursViewModel.cs" />
     <Page Include="Views\Controls\WelcomeControl.xaml">
@@ -159,6 +172,10 @@
     <Page Include="Views\Pages\Tickets.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\TicketsHistory.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Pages\Tours.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -205,6 +222,7 @@
     <Compile Include="Views\Pages\Tickets.xaml.cs">
       <DependentUpon>Tickets.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Pages\TicketsHistory.xaml.cs" />
     <Compile Include="Views\Pages\Tours.xaml.cs">
       <DependentUpon>Tours.xaml</DependentUpon>
     </Compile>

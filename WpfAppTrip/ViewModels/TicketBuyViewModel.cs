@@ -7,6 +7,8 @@ using WpfAppTrip.Services;
 using System.Linq;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.IO;
+using System.Windows;
 
 namespace WpfAppTrip.ViewModels
 {
@@ -14,6 +16,8 @@ namespace WpfAppTrip.ViewModels
     {
         private readonly INavigationService _navigationService;
         private readonly IDialogService _dialogService;
+        private readonly IPdfTicketService _pdfService;
+        private readonly Db.Dbhelper _db;
         private readonly FlightOptionViewModel _selectedFlight;
         
         // Данные пассажира
@@ -38,9 +42,14 @@ namespace WpfAppTrip.ViewModels
         private string _routeInfo;
         private string _classInfo;
         private decimal _totalPrice;
+        
+        // Информация о билете
+        private string _ticketNumber;
+        private string _ticketFilePath;
 
         public ICommand BackCommand { get; }
         public ICommand ContinueCommand { get; }
+        public ICommand OpenTicketCommand { get; }
 
         #region Свойства пассажира
         public string PassengerLastName
@@ -138,17 +147,37 @@ namespace WpfAppTrip.ViewModels
         }
 
         public string TotalPriceFormatted => $"{TotalPrice:N0}₽";
+        
+        public string TicketNumber
+        {
+            get => _ticketNumber;
+            set => SetProperty(ref _ticketNumber, value);
+        }
+        
+        public string TicketFilePath
+        {
+            get => _ticketFilePath;
+            set => SetProperty(ref _ticketFilePath, value);
+        }
         #endregion
 
-        public TicketBuyViewModel(INavigationService navigationService, IDialogService dialogService, FlightOptionViewModel selectedFlight)
+        public TicketBuyViewModel(
+            INavigationService navigationService, 
+            IDialogService dialogService, 
+            IPdfTicketService pdfService,
+            Db.Dbhelper db,
+            FlightOptionViewModel selectedFlight)
         {
             _navigationService = navigationService;
             _dialogService = dialogService;
+            _pdfService = pdfService;
+            _db = db;
             _selectedFlight = selectedFlight;
             
             // Инициализация команд
             BackCommand = new RelayCommand(param => GoBack());
             ContinueCommand = new RelayCommand(param => ContinuePurchase(), param => CanContinuePurchase());
+            OpenTicketCommand = new RelayCommand(param => OpenTicket(), param => !string.IsNullOrEmpty(TicketFilePath));
             
             // Инициализация данных
             InitializeData();
@@ -167,9 +196,21 @@ namespace WpfAppTrip.ViewModels
             
             Debug.WriteLine($"Инициализация данных для маршрута: {RouteInfo}, код аэропорта: {destinationCode}");
             
+            // Генерируем номер билета
+            TicketNumber = $"TKT{new Random().Next(100000, 999999)}";
             
-           
-            
+            // Если пользователь авторизован, заполняем данные покупателя
+            if (_db.CurrentUser != null)
+            {
+                BuyerLastName = _db.CurrentUser.GetLastName();
+                BuyerFirstName = _db.CurrentUser.GetFirstName();
+                BuyerEmail = _db.CurrentUser.Email;
+                BuyerPhone = _db.CurrentUser.Phone;
+                
+                // Можно также заполнить данные пассажира, если это тот же человек
+                PassengerLastName = _db.CurrentUser.GetLastName();
+                PassengerFirstName = _db.CurrentUser.GetFirstName();
+            }
         }
 
         // Метод для получения кода аэропорта по названию страны/города
@@ -228,11 +269,108 @@ namespace WpfAppTrip.ViewModels
 
         private void ContinuePurchase()
         {
-            // Здесь будет логика оформления покупки
-            _dialogService.ShowInfo($"Билет успешно оформлен!\n\nПассажир: {PassengerLastName} {PassengerFirstName}\nМаршрут: {RouteInfo}\nСтоимость: {TotalPriceFormatted}");
-            
-            // Возвращаемся на главную страницу
-            _navigationService.NavigateToWelcome();
+            try
+            {
+                // Создаем объект с данными билета
+                var ticketData = new TicketData
+                {
+                    // Информация о пассажире
+                    PassengerLastName = PassengerLastName,
+                    PassengerFirstName = PassengerFirstName,
+                    PassengerGender = PassengerGender,
+                    PassengerBirthDate = PassengerBirthDate,
+                    DocumentType = DocumentType,
+                    DocumentNumber = DocumentNumber,
+                    DocumentExpiryDate = DocumentExpiryDate,
+                    
+                    // Информация о покупателе
+                    BuyerLastName = BuyerLastName,
+                    BuyerFirstName = BuyerFirstName,
+                    BuyerEmail = BuyerEmail,
+                    BuyerPhone = BuyerPhone,
+                    
+                    // Информация о маршруте
+                    RouteInfo = RouteInfo,
+                    ClassInfo = ClassInfo,
+                    TotalPrice = TotalPrice,
+                    
+                    // Информация о билете
+                    TicketNumber = TicketNumber,
+                    PurchaseDate = DateTime.Now
+                };
+                
+                // Генерируем PDF-билет
+                Debug.WriteLine("Генерация PDF-билета...");
+                string pdfPath = _pdfService.GenerateTicket(ticketData);
+                
+                if (!string.IsNullOrEmpty(pdfPath))
+                {
+                    // Сохраняем путь к файлу
+                    TicketFilePath = pdfPath;
+                    ticketData.TicketFilePath = pdfPath;
+                    
+                    // Сохраняем информацию о билете в базу данных
+                    Debug.WriteLine("Сохранение информации о билете в базу данных...");
+                    int ticketId = _db.SaveTicket(ticketData);
+                    
+                    if (ticketId > 0)
+                    {
+                        Debug.WriteLine($"Билет успешно сохранен в базе данных с ID: {ticketId}");
+                        
+                        // Показываем сообщение об успешной покупке
+                        var result = _dialogService.ShowQuestion(
+                            $"Билет успешно оформлен!\n\nПассажир: {PassengerLastName} {PassengerFirstName}\nМаршрут: {RouteInfo}\nСтоимость: {TotalPriceFormatted}\n\nБилет сохранен по пути:\n{pdfPath}\n\nОткрыть билет сейчас?",
+                            "Билет оформлен");
+                        
+                        if (result)
+                        {
+                            // Открываем билет
+                            OpenTicket();
+                        }
+                        
+                        // Возвращаемся на главную страницу
+                        _navigationService.NavigateToWelcome();
+                    }
+                    else
+                    {
+                        _dialogService.ShowError("Не удалось сохранить информацию о билете в базе данных. Пожалуйста, попробуйте еще раз.");
+                    }
+                }
+                else
+                {
+                    _dialogService.ShowError("Не удалось создать PDF-билет. Пожалуйста, попробуйте еще раз.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка при оформлении билета: {ex.Message}");
+                _dialogService.ShowError($"Произошла ошибка при оформлении билета: {ex.Message}");
+            }
+        }
+        
+        private void OpenTicket()
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(TicketFilePath) && File.Exists(TicketFilePath))
+                {
+                    // Открываем файл с помощью ассоциированной программы
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = TicketFilePath,
+                        UseShellExecute = true
+                    });
+                }
+                else
+                {
+                    _dialogService.ShowError("Файл билета не найден.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка при открытии билета: {ex.Message}");
+                _dialogService.ShowError($"Не удалось открыть билет: {ex.Message}");
+            }
         }
     }
 } 

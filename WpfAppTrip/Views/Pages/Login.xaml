@@ -7,7 +7,7 @@
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       d:DataContext="{d:DesignInstance Type=vm:LoginViewModel}"
       mc:Ignorable="d" 
-      d:DesignHeight="700" d:DesignWidth="1000"
+      d:DesignHeight="800" d:DesignWidth="1000"
       Title="Вход в аккаунт"
       Loaded="Page_Loaded"
       Background="#B3E5FC">   
@@ -50,7 +50,7 @@
                     VerticalAlignment="Center">
 
                 <TextBlock Text="Вход в аккаунт"
-                      FontSize="28"
+                      FontSize="32"
                       FontWeight="Medium"
                       Margin="0,0,0,40"/>
 

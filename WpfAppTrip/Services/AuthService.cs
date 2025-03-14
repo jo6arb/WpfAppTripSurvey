@@ -39,87 +39,101 @@ namespace WpfAppTrip.Services
         public User GetCurrentUser() => _currentUser;
 
         /// <summary>
-        /// Выполняет вход пользователя в систему
+        /// Выполняет вход пользователя в систему по телефону или email
         /// </summary>
-        /// <param name="email">Email пользователя</param>
+        /// <param name="loginValue">Телефон или email пользователя</param>
         /// <param name="password">Пароль пользователя</param>
         /// <returns>Кортеж с результатом операции и сообщением об ошибке</returns>
-        public async Task<(bool Success, string Error)> LoginAsync(string email, string password)
+        public Task<(bool Success, string Error)> LoginAsync(string loginValue, string password)
         {
             try
             {
-                Debug.WriteLine($"Попытка входа: Email={email}");
-
-                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
-                {
-                    return (false, "Email и пароль обязательны для заполнения");
-                }
-
-                var parameters = new Dictionary<string, object>
-                {
-                    { "@Email", email },
-                    { "@Password", password }
-                };
-
-                var user = await _dbHelper.GetSingleAsync<User>(
-                    "SELECT UserID, Username, Email, Password, Role, Phone, COALESCE(RegistrationDate, GETDATE()) AS RegistrationDate FROM Users WHERE Email = @Email AND Password = @Password",
-                    reader => new User
-                    {
-                        UserID = reader.GetInt32(reader.GetOrdinal("UserID")),
-                        Username = reader.GetString(reader.GetOrdinal("Username")),
-                        Email = reader.GetString(reader.GetOrdinal("Email")),
-                        Password = reader.GetString(reader.GetOrdinal("Password")),
-                        Role = reader.GetString(reader.GetOrdinal("Role")),
-                        Phone = reader.IsDBNull(reader.GetOrdinal("Phone")) ? null : reader.GetString(reader.GetOrdinal("Phone")),
-                        RegistrationDate = reader.GetDateTime(reader.GetOrdinal("RegistrationDate"))
-                    },
-                    parameters);
-
+                Debug.WriteLine($"Попытка входа: Phone/Email={loginValue}");
+                
+                // Проверяем, является ли loginValue телефоном или email
+                bool isEmail = loginValue.Contains("@");
+                
+                // Получаем пользователя по телефону или email
+                User user = isEmail 
+                    ? _dbHelper.GetUserByEmail(loginValue) 
+                    : _dbHelper.GetUserByPhone(loginValue);
+                
                 if (user == null)
                 {
                     Debug.WriteLine("Пользователь не найден");
-                    return (false, "Неверный email или пароль");
+                    return Task.FromResult((false, "Пользователь не найден"));
                 }
 
-                // Очищаем пароль перед сохранением в памяти
-                user.Password = null;
-                _currentUser = user;
+                // Проверяем пароль напрямую
+                if (user.Password != password)
+                {
+                    Debug.WriteLine("Неверный пароль");
+                    return Task.FromResult((false, "Неверный пароль"));
+                }
+
+                // Устанавливаем текущего пользователя
+                CurrentUser = user;
+                _dbHelper.CurrentUser = user;
                 
-                Debug.WriteLine($"Успешный вход пользователя: {user.Username}, Роль: {user.Role}");
-                return (true, null);
+                // Сохраняем информацию о входе
+                _dbHelper.SaveLoginHistory(user.UserID);
+                
+                Debug.WriteLine($"Успешный вход пользователя: {user.GetFullName()}, Роль: {user.Role}");
+                return Task.FromResult((true, string.Empty));
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Ошибка при входе: {ex.Message}");
-                return (false, $"Ошибка входа: {ex.Message}");
+                return Task.FromResult((false, $"Ошибка при входе: {ex.Message}"));
             }
         }
 
         /// <summary>
         /// Регистрирует нового пользователя
         /// </summary>
-        /// <param name="username">Имя пользователя</param>
+        /// <param name="phone">Телефон пользователя</param>
         /// <param name="email">Email пользователя</param>
         /// <param name="password">Пароль пользователя</param>
+        /// <param name="lastName">Фамилия пользователя</param>
+        /// <param name="firstName">Имя пользователя</param>
+        /// <param name="middleName">Отчество пользователя</param>
         /// <returns>Кортеж с результатом операции и сообщением об ошибке</returns>
-        public async Task<(bool Success, string Error)> RegisterAsync(string username, string email, string password)
+        public async Task<(bool Success, string Error)> RegisterAsync(string phone, string email, string password, 
+            string lastName, string firstName, string middleName = null)
         {
             try
             {
-                Debug.WriteLine($"Попытка регистрации: Username={username}, Email={email}");
+                Debug.WriteLine($"Попытка регистрации: Phone={phone}, Email={email}, Name={lastName} {firstName} {middleName}");
 
-                if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                if (string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password) ||
+                    string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(firstName))
                 {
-                    return (false, "Все поля обязательны для заполнения");
+                    return (false, "Все обязательные поля должны быть заполнены");
+                }
+
+                // Проверка, существует ли пользователь с таким телефоном
+                var checkParams = new Dictionary<string, object>
+                {
+                    { "@Phone", phone }
+                };
+
+                int userCount = await _dbHelper.ExecuteScalarAsync<int>(
+                    "SELECT COUNT(*) FROM Users WHERE Phone = @Phone",
+                    checkParams);
+
+                if (userCount > 0)
+                {
+                    Debug.WriteLine($"Пользователь с телефоном {phone} уже существует");
+                    return (false, "Пользователь с таким телефоном уже существует");
                 }
 
                 // Проверка, существует ли пользователь с таким email
-                var checkParams = new Dictionary<string, object>
+                checkParams = new Dictionary<string, object>
                 {
                     { "@Email", email }
                 };
 
-                int userCount = await _dbHelper.ExecuteScalarAsync<int>(
+                userCount = await _dbHelper.ExecuteScalarAsync<int>(
                     "SELECT COUNT(*) FROM Users WHERE Email = @Email",
                     checkParams);
 
@@ -129,19 +143,26 @@ namespace WpfAppTrip.Services
                     return (false, "Пользователь с таким email уже существует");
                 }
 
+                // Создаем имя пользователя из фамилии и имени
+                string username = $"{lastName} {firstName}";
+                
                 // Сохраняем пароль без хеширования
                 var parameters = new Dictionary<string, object>
                 {
                     { "@Username", username },
                     { "@Email", email },
-                    { "@Password", password }, // Сохраняем пароль как есть
+                    { "@Password", password },
+                    { "@Phone", phone },
+                    { "@LastName", lastName },
+                    { "@FirstName", firstName },
+                    { "@MiddleName", middleName ?? (object)DBNull.Value },
                     { "@RegistrationDate", DateTime.Now }
                 };
 
                 // Роль User по умолчанию
                 await _dbHelper.ExecuteNonQueryAsync(
-                    @"INSERT INTO Users (Username, Email, Password, Role, RegistrationDate) 
-                      VALUES (@Username, @Email, @Password, 'User', @RegistrationDate)",
+                    @"INSERT INTO Users (Username, Email, Password, Phone, LastName, FirstName, MiddleName, Role, RegistrationDate) 
+                      VALUES (@Username, @Email, @Password, @Phone, @LastName, @FirstName, @MiddleName, 'User', @RegistrationDate)",
                     parameters);
 
                 Debug.WriteLine($"Пользователь {username} успешно зарегистрирован");
@@ -161,6 +182,7 @@ namespace WpfAppTrip.Services
         {
             Debug.WriteLine("Выход пользователя из системы");
             _currentUser = null;
+            _dbHelper.CurrentUser = null;
         }
 
         /// <summary>
@@ -175,16 +197,19 @@ namespace WpfAppTrip.Services
         /// Обновляет информацию о пользователе
         /// </summary>
         /// <param name="userId">Идентификатор пользователя</param>
-        /// <param name="username">Новое имя пользователя</param>
         /// <param name="email">Новый email</param>
+        /// <param name="lastName">Новая фамилия</param>
+        /// <param name="firstName">Новое имя</param>
+        /// <param name="middleName">Новое отчество</param>
         /// <returns>Кортеж с результатом операции и сообщением об ошибке</returns>
-        public async Task<(bool Success, string Error)> UpdateUserInfoAsync(int userId, string username, string email)
+        public async Task<(bool Success, string Error)> UpdateUserInfoAsync(int userId, string email, 
+            string lastName, string firstName, string middleName = null)
         {
             try
             {
-                if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email))
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(lastName) || string.IsNullOrEmpty(firstName))
                 {
-                    return (false, "Имя пользователя и email обязательны для заполнения");
+                    return (false, "Email, фамилия и имя обязательны для заполнения");
                 }
 
                 // Проверка, существует ли другой пользователь с таким email
@@ -203,16 +228,28 @@ namespace WpfAppTrip.Services
                     return (false, "Пользователь с таким email уже существует");
                 }
 
+                // Создаем имя пользователя из фамилии и имени
+                string username = $"{lastName} {firstName}";
+
                 // Обновление информации о пользователе
                 var parameters = new Dictionary<string, object>
                 {
                     { "@UserID", userId },
                     { "@Username", username },
-                    { "@Email", email }
+                    { "@Email", email },
+                    { "@LastName", lastName },
+                    { "@FirstName", firstName },
+                    { "@MiddleName", middleName ?? (object)DBNull.Value }
                 };
 
                 await _dbHelper.ExecuteNonQueryAsync(
-                    "UPDATE Users SET Username = @Username, Email = @Email WHERE UserID = @UserID",
+                    @"UPDATE Users SET 
+                      Username = @Username, 
+                      Email = @Email, 
+                      LastName = @LastName, 
+                      FirstName = @FirstName, 
+                      MiddleName = @MiddleName 
+                      WHERE UserID = @UserID",
                     parameters);
 
                 // Обновляем текущего пользователя, если это он
@@ -220,6 +257,9 @@ namespace WpfAppTrip.Services
                 {
                     _currentUser.Username = username;
                     _currentUser.Email = email;
+                    _currentUser.LastName = lastName;
+                    _currentUser.FirstName = firstName;
+                    _currentUser.MiddleName = middleName;
                 }
 
                 return (true, null);
@@ -298,6 +338,27 @@ namespace WpfAppTrip.Services
         {
             try
             {
+                if (string.IsNullOrEmpty(phone))
+                {
+                    return (false, "Телефон обязателен для заполнения");
+                }
+
+                // Проверка, существует ли другой пользователь с таким телефоном
+                var checkParams = new Dictionary<string, object>
+                {
+                    { "@Phone", phone },
+                    { "@UserID", userId }
+                };
+
+                int userCount = await _dbHelper.ExecuteScalarAsync<int>(
+                    "SELECT COUNT(*) FROM Users WHERE Phone = @Phone AND UserID != @UserID",
+                    checkParams);
+
+                if (userCount > 0)
+                {
+                    return (false, "Пользователь с таким телефоном уже существует");
+                }
+
                 // Обновление телефона пользователя
                 var parameters = new Dictionary<string, object>
                 {

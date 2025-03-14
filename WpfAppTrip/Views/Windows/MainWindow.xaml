@@ -65,18 +65,7 @@
                                       FontWeight="Medium"/>
                         </StackPanel>
                     </Button>
-                    
-                    <Button Style="{StaticResource MenuButtonStyle}"
-                            Command="{Binding LogoutCommand}">
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Logout" 
-                                                   Width="20" 
-                                                   Height="20" 
-                                                   VerticalAlignment="Center"
-                                                   Margin="0,0,8,0"/>
-                            <TextBlock Text="Выйти" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
+                   
                 </StackPanel>
                 
                 <!-- Навигационные кнопки -->

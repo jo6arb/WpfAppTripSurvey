@@ -11,6 +11,7 @@
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -19,8 +20,18 @@
                    Style="{StaticResource MaterialDesignHeadline5TextBlock}"
                    Margin="0,0,0,20"/>
 
+        <!-- Кнопка добавления пользователя -->
+        <Button Grid.Row="1"
+                Content="Добавить пользователя"
+                Command="{Binding AddUserCommand}"
+                Style="{StaticResource MaterialDesignRaisedButton}"
+                Margin="0,0,0,20"
+                HorizontalAlignment="Left"
+                Background="#2196F3"
+                Foreground="White"/>
+
         <!-- Таблица пользователей -->
-        <DataGrid Grid.Row="1"
+        <DataGrid Grid.Row="2"
                   ItemsSource="{Binding Users}"
                   AutoGenerateColumns="False"
                   CanUserAddRows="False"
@@ -48,12 +59,14 @@
                                         Command="{Binding DataContext.SaveUserCommand, 
                                                   RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                         CommandParameter="{Binding}"
-                                        Content="Сохранить"/>
+                                        Content="Сохранить"
+                                        Foreground="#4CAF50"/>
                                 <Button Style="{StaticResource MaterialDesignFlatButton}"
                                         Command="{Binding DataContext.DeleteUserCommand, 
                                                   RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                         CommandParameter="{Binding}"
-                                        Content="Удалить"/>
+                                        Content="Удалить"
+                                        Foreground="#F44336"/>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

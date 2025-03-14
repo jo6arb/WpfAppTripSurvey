@@ -16,6 +16,7 @@ using WpfAppTrip.Models;
 using WpfAppTrip.ViewModels;
 using WpfAppTrip.Services;
 using Unity;
+using WpfAppTrip.Db;
 
 namespace WpfAppTrip.Views.Pages
 {
@@ -31,9 +32,11 @@ namespace WpfAppTrip.Views.Pages
             // Получаем зависимости из контейнера Unity
             var navigationService = (INavigationService)App.Container.Resolve(typeof(INavigationService));
             var dialogService = (IDialogService)App.Container.Resolve(typeof(IDialogService));
+            var pdfService = (IPdfTicketService)App.Container.Resolve(typeof(IPdfTicketService));
+            var dbHelper = (Dbhelper)App.Container.Resolve(typeof(Dbhelper));
             
             // Создаем экземпляр ViewModel с выбранным рейсом
-            DataContext = new TicketBuyViewModel(navigationService, dialogService, selectedFlight);
+            DataContext = new TicketBuyViewModel(navigationService, dialogService, pdfService, dbHelper, selectedFlight);
         }
     }
 }

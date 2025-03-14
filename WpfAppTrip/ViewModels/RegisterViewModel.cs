@@ -20,6 +20,9 @@ namespace WpfAppTrip.ViewModels
         private string _email;
         private string _password;
         private string _confirmPassword;
+        private string _lastName;
+        private string _firstName;
+        private string _middleName;
         private bool _isRegisterEnabled;
 
         public RegisterViewModel(
@@ -63,6 +66,36 @@ namespace WpfAppTrip.ViewModels
             }
         }
 
+        public string LastName
+        {
+            get => _lastName;
+            set
+            {
+                if (SetProperty(ref _lastName, value))
+                    ValidateFields();
+            }
+        }
+
+        public string FirstName
+        {
+            get => _firstName;
+            set
+            {
+                if (SetProperty(ref _firstName, value))
+                    ValidateFields();
+            }
+        }
+
+        public string MiddleName
+        {
+            get => _middleName;
+            set
+            {
+                if (SetProperty(ref _middleName, value))
+                    ValidateFields();
+            }
+        }
+
         public string Password
         {
             get => _password;
@@ -101,8 +134,9 @@ namespace WpfAppTrip.ViewModels
             bool isEmailValid = !string.IsNullOrEmpty(Email) && emailRegex.IsMatch(Email);
             bool isPasswordValid = !string.IsNullOrEmpty(Password) && Password.Length >= 6;
             bool isConfirmPasswordValid = Password == ConfirmPassword;
+            bool isNameValid = !string.IsNullOrEmpty(LastName) && !string.IsNullOrEmpty(FirstName);
 
-            IsRegisterEnabled = isPhoneValid && isEmailValid && isPasswordValid && isConfirmPasswordValid;
+            IsRegisterEnabled = isPhoneValid && isEmailValid && isPasswordValid && isConfirmPasswordValid && isNameValid;
         }
 
         private async Task RegisterAsync()
@@ -110,7 +144,7 @@ namespace WpfAppTrip.ViewModels
             IsRegisterEnabled = false;
             try
             {
-                var (success, error) = await _authService.RegisterAsync(Phone, Email, Password);
+                var (success, error) = await _authService.RegisterAsync(Phone, Email, Password, LastName, FirstName, MiddleName);
 
                 if (success)
                 {

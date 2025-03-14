@@ -88,7 +88,7 @@ namespace WpfAppTrip.Views.Pages
             
             try
             {
-                var (success, error) = await _authService.LoginAsync(EmailTextBox.Text, PasswordBox.Password);
+                var (success, error) = await _authService.LoginAsync(PhoneTextBox.Text, PasswordBox.Password);
                 
                 if (success)
                 {
@@ -98,6 +98,9 @@ namespace WpfAppTrip.Views.Pages
                     
                     // Показываем главное окно
                     _navigationService.ShowMainWindow();
+                    
+                    // Явно переходим на страницу приветствия
+                    _navigationService.NavigateToWelcome();
                     
                     // Закрываем окно логина
                     var loginWindow = Window.GetWindow(this) as LoginWindow;

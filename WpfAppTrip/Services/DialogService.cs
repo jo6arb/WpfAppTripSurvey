@@ -24,5 +24,11 @@ namespace WpfAppTrip.Services
             return MessageBox.Show(message, "Подтверждение", 
                 MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
         }
+        
+        public bool ShowQuestion(string message, string title)
+        {
+            return MessageBox.Show(message, title, 
+                MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+        }
     }
 } 
