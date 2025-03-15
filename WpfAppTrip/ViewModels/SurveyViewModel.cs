@@ -12,6 +12,7 @@ using System.Diagnostics;
 using WpfAppTrip.Helpers;
 using System.IO;
 using Unity;
+using System.Windows;
 
 namespace WpfAppTrip.ViewModels
 {
@@ -169,67 +170,47 @@ namespace WpfAppTrip.ViewModels
                 );
 
                 _currentAnswerOptions.Clear();
+                
+                // Загружаем изображения для всех вариантов ответов
                 foreach (var option in options)
                 {
                     Debug.WriteLine($"Обработка варианта ответа: ID={option.OptionID}, Text={option.OptionText}, DBPath={option.ImagePath}");
                     
-                    // Проверяем путь из базы данных
-                    bool hasImage = false;
-                    string finalImagePath = null;
-                    
-                    if (!string.IsNullOrEmpty(option.ImagePath))
+                    // Пробуем загрузить изображение напрямую из файловой системы
+                    string directPath = TryLoadImageDirectly(questionId, option.OptionID);
+                    if (!string.IsNullOrEmpty(directPath))
                     {
-                        // Проверяем абсолютный путь
-                        if (File.Exists(option.ImagePath))
-                        {
-                            hasImage = true;
-                            finalImagePath = option.ImagePath;
-                            Debug.WriteLine($"Найден файл по абсолютному пути: {finalImagePath}");
-                        }
-                        else
-                        {
-                            // Проверяем относительно папки проекта
-                            string projectPath = Path.Combine(
-                                Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..")), 
-                                option.ImagePath);
-                            
-                            if (File.Exists(projectPath))
-                            {
-                                hasImage = true;
-                                finalImagePath = projectPath;
-                                Debug.WriteLine($"Найден файл относительно проекта: {finalImagePath}");
-                            }
-                            else
-                            {
-                                // Проверяем относительно bin/Debug
-                                string binPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, option.ImagePath);
-                                
-                                if (File.Exists(binPath))
-                                {
-                                    hasImage = true;
-                                    finalImagePath = binPath;
-                                    Debug.WriteLine($"Найден файл относительно bin/Debug: {finalImagePath}");
-                                }
-                            }
-                        }
+                        option.HasImage = true;
+                        option.ImagePath = directPath;
+                        Debug.WriteLine($"Загружено изображение напрямую: {directPath}");
                     }
-                    
-                    // Если не нашли по пути из БД, ищем по ID вопроса и варианта
-                    if (!hasImage)
+                    else
                     {
-                        string foundPath = ImagePathHelper.FindImageFile(questionId, option.OptionID);
-                        if (!string.IsNullOrEmpty(foundPath))
-                        {
-                            hasImage = true;
-                            finalImagePath = foundPath;
-                            Debug.WriteLine($"Найден файл по ID вопроса и варианта: {finalImagePath}");
-                        }
+                        // Если не удалось загрузить напрямую, используем стандартный метод
+                        string finalImagePath = ImagePathHelper.FindImageFile(questionId, option.OptionID);
+                        bool hasImage = !string.IsNullOrEmpty(finalImagePath);
+                        
+                        option.HasImage = hasImage;
+                        option.ImagePath = finalImagePath;
                     }
-                    
-                    option.HasImage = hasImage;
-                    option.ImagePath = finalImagePath;
                     
                     Debug.WriteLine($"Итоговый вариант ответа: ID={option.OptionID}, Text={option.OptionText}, HasImage={option.HasImage}, Path={option.ImagePath}");
+                    
+                    // Проверяем доступность ресурса
+                    if (option.HasImage && option.ImagePath.StartsWith("/"))
+                    {
+                        try
+                        {
+                            var packUri = $"pack://application:,,,{option.ImagePath}";
+                            var resourceInfo = Application.GetResourceStream(new Uri(packUri));
+                            Debug.WriteLine($"Ресурс доступен через Pack URI: {resourceInfo != null}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Ошибка при проверке ресурса через Pack URI: {ex.Message}");
+                        }
+                    }
+                    
                     _currentAnswerOptions.Add(option);
                 }
             }
@@ -237,6 +218,39 @@ namespace WpfAppTrip.ViewModels
             {
                 Debug.WriteLine($"Ошибка при загрузке вариантов ответа: {ex.Message}");
                 _dialogService.ShowError($"Ошибка при загрузке вариантов ответа: {ex.Message}");
+            }
+        }
+        
+        // Метод для загрузки изображения напрямую из файловой системы
+        private string TryLoadImageDirectly(int questionId, int optionId)
+        {
+            try
+            {
+                // Проверяем различные пути к файлам
+                string[] possiblePaths = {
+                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", $"Quest{questionId}", $"{optionId}.jpg"),
+                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", $"Quest{questionId}", $"{optionId}.jpeg"),
+                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", $"Quest{questionId}", $"{optionId}.png"),
+                    Path.Combine(Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\")), "Images", $"Quest{questionId}", $"{optionId}.jpg"),
+                    Path.Combine(Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\")), "Images", $"Quest{questionId}", $"{optionId}.jpeg"),
+                    Path.Combine(Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\")), "Images", $"Quest{questionId}", $"{optionId}.png")
+                };
+                
+                foreach (var path in possiblePaths)
+                {
+                    if (File.Exists(path))
+                    {
+                        Debug.WriteLine($"Найден файл напрямую: {path}");
+                        return path;
+                    }
+                }
+                
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка при прямой загрузке изображения: {ex.Message}");
+                return null;
             }
         }
 

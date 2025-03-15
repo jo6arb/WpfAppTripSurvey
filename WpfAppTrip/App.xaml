@@ -36,6 +36,7 @@
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <converters:ZeroToVisibilityConverter x:Key="ZeroToVisibilityConverter" />
             <converters:NonZeroToVisibilityConverter x:Key="NonZeroToVisibilityConverter" />
+            <converters:ImageSourceConverter x:Key="ImageSourceConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

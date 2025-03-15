@@ -5,12 +5,26 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       xmlns:vm="clr-namespace:WpfAppTrip.ViewModels"
+      xmlns:converters="clr-namespace:WpfAppTrip.Converters"
       d:DataContext="{d:DesignInstance Type=vm:SurveyViewModel}"
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="1000"
       Title="Опрос">
 
-    <Grid Margin="40">
+    <Page.Resources>
+        <converters:ImageSourceConverter x:Key="ImageSourceConverter"/>
+        <Style x:Key="AnswerRadioButtonStyle" TargetType="RadioButton" BasedOn="{StaticResource MaterialDesignChoiceChipRadioButton}">
+            <Setter Property="Margin" Value="0,8,0,8"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="12,12"/>
+            <Setter Property="Height" Value="Auto"/>
+            <Setter Property="MinHeight" Value="180"/>
+            <Setter Property="MaxHeight" Value="200"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -20,7 +34,7 @@
         <!-- Заголовок с номером вопроса -->
         <TextBlock Text="{Binding CurrentQuestionText}"
                   Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                  Margin="0,0,0,30"/>
+                  Margin="0,0,0,15"/>
 
         <!-- Основной контент -->
         <Grid Grid.Row="1">
@@ -34,19 +48,26 @@
                       Style="{StaticResource MaterialDesignBody1TextBlock}"
                       FontSize="18"
                       TextWrapping="Wrap"
-                      Margin="0,0,0,30"/>
+                      Margin="0,0,0,15"/>
 
             <!-- Варианты ответов -->
             <ItemsControl Grid.Row="1" 
-                         ItemsSource="{Binding CurrentAnswerOptions}">
+                         ItemsSource="{Binding CurrentAnswerOptions}"
+                         VerticalAlignment="Stretch"
+                         HorizontalAlignment="Stretch"
+                         Margin="0,5">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <RadioButton Style="{StaticResource MaterialDesignChoiceChipRadioButton}"
+                        <RadioButton Style="{StaticResource AnswerRadioButtonStyle}"
                                    GroupName="AnswerOptions"
-                                   Margin="0,0,0,20"
                                    Tag="{Binding OptionID}"
                                    Checked="RadioButton_Checked">
-                            <Grid Width="800">
+                            <Grid Width="900" Height="Auto" VerticalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
@@ -54,10 +75,11 @@
 
                                 <!-- Вариант с картинкой -->
                                 <Border Grid.Column="0" 
-                                        Width="180" 
-                                        Height="120" 
+                                        Width="320" 
+                                        Height="170" 
                                         CornerRadius="10"
-                                        Margin="0,0,20,0"
+                                        Margin="5,0,20,0"
+                                        VerticalAlignment="Center"
                                         Visibility="{Binding HasImage, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <Border.Effect>
                                         <DropShadowEffect BlurRadius="10" 
@@ -65,15 +87,17 @@
                                                          Direction="270" 
                                                          Opacity="0.2"/>
                                     </Border.Effect>
-                                    <Image Source="{Binding ImagePath, Converter={StaticResource NullImageConverter}}"
-                                           Stretch="UniformToFill"/>
+                                    <Image Source="{Binding ImagePath, Converter={StaticResource ImageSourceConverter}}"
+                                           Stretch="Uniform"
+                                           Margin="5"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
                                 </Border>
 
                                 <!-- Текст варианта -->
                                 <TextBlock Grid.Column="{Binding HasImage, Converter={StaticResource BooleanToIntConverter}, ConverterParameter='1:0'}"
                                          Text="{Binding OptionText}"
                                          Style="{StaticResource MaterialDesignBody1TextBlock}"
-                                         FontSize="16"
+                                         FontSize="18"
                                          TextWrapping="Wrap"
                                          VerticalAlignment="Center">
                                     <TextBlock.Margin>
@@ -88,7 +112,7 @@
         </Grid>
 
         <!-- Кнопки навигации -->
-        <Grid Grid.Row="2" Margin="0,30,0,0">
+        <Grid Grid.Row="2" Margin="0,15,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>

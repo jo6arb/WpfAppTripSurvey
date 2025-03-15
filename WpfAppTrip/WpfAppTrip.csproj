@@ -93,6 +93,7 @@
     </Compile>
     <Compile Include="Converters\BooleanToIntConverter.cs" />
     <Compile Include="Converters\BooleanToMarginConverter.cs" />
+    <Compile Include="Converters\ImageSourceConverter.cs" />
     <Compile Include="Converters\InverseBooleanConverter.cs" />
     <Compile Include="Converters\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\NonZeroToVisibilityConverter.cs" />
